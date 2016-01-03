@@ -7,16 +7,18 @@
     "test": ""
   },
   "dependencies": {
-    "node-uuid": "^1.4.7",
-    "on-headers": "^1.0.1",
-    "morgan": "^1.6.1",
-    "negotiator": "^0.6.0",
-    "useragent": "^2.1.8",
     "compression": "^1.6.0",
     "cookies": "^0.5.1",
+    "morgan": "^1.6.1",
+    "negotiator": "^0.6.0",
+    "node-uuid": "^1.4.7",
+    "on-finished": "^2.3.0",
+    "on-headers": "^1.0.1",
+    "useragent": "^2.1.8",
     "webpack-assets": "^0.1.0"
   },
   "devDependencies": {
+    "babel-preset-metalab": "^0.1.2",
     "eslint": "^1.8.0",
     "eslint-config-metalab": "^1.0.0-rc.1"
   }

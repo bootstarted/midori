@@ -8,12 +8,14 @@ import logging from './middleware/logging';
 import secure from './middleware/secure';
 import useragent from './middleware/useragent';
 
-export default compose(
-  compression,
-  cookies,
-  id,
-  locale,
-  logging,
-  secure,
-  useragent
-);
+export default function(options) {
+  return compose(
+    compression(options),
+    cookies(options),
+    id(options),
+    locale(options),
+    logging(options),
+    secure(options),
+    useragent(options)
+  );
+}

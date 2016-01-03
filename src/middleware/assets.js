@@ -43,7 +43,7 @@ function update(stats) {
  * @returns {Function} Herp.
  */
 export function files() {
-  return function(next) {
+  return function({ request }) {
     return function(req, res) {
       if (index[req.url]) {
         if (req.method !== 'GET' && req.method !== 'HEAD') {
@@ -59,29 +59,29 @@ export function files() {
           res.end(asset.contents);
         }
       } else {
-        next(req, res);
+        request(req, res);
       }
     };
   };
 }
 
-export function assets() {
-  return function(next) {
-    // `webpack-udev-server` provides events to the process when new assets have
-    // been generated for the client portion of the code.
-    process.on('webpack-stats', update);
+export function stats() {
+  // Standard `webpack` output in production is just a single stats file, so
+  // read that and use that for assets.
+  update(JSON.parse(readFileSync(file, 'utf8')));
 
-    // Standard `webpack` output in production is just a single stats file, so
-    // read that and use that for assets.
-    update(JSON.parse(readFileSync(file, 'utf8')));
+  // `webpack-udev-server` provides events to the process when new assets have
+  // been generated for the client portion of the code.
+  process.on('webpack-stats', update);
 
+  return function({ request }) {
     return function(req, res) {
       req.assets = assets;
-      next(req, res);
+      request(req, res);
     };
   };
 }
 
 export default function(options) {
-  return compose(files(options), assets(options));
+  return compose(files(options), stats(options));
 }

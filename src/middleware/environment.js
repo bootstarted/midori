@@ -1,27 +1,40 @@
-/* global BUILD_VERSION BUILD_COMMIT */
-
 import { hostname } from 'os';
 
-export default function() {
-  return function(next) {
-    return function(req, res) {
-      // Set any specific information about your environment here.
-      // NOTE: These are server-side specific environment properties; nothing
-      // that comes from the client should be in this object.
-      req.environment = {
-        version: BUILD_VERSION,
-        commit: BUILD_COMMIT,
-        hostname: hostname(),
-        env: process.env.NODE_ENV,
-      };
+function detectVersion() {
 
-      // Expose useful information to the client that they might want when
-      // calling via HEAD or similar.
-      res.setHeader('Version', BUILD_VERSION);
-      res.setHeader('Commit', BUILD_COMMIT);
+}
 
-      // Carry on.
-      next(req, res);
+function detectCommit() {
+
+}
+
+export default function({ environment: x } = { }) {
+  const environment = {
+    version: detectVersion(),
+    commit: detectCommit(),
+    hostname: hostname(),
+    env: process.env.NODE_ENV,
+    ...x,
+  };
+
+  return function(app) {
+    const { request } = app;
+    return {
+      ...app,
+      request(req, res) {
+        // Set any specific information about your environment here.
+        // NOTE: These are server-side specific environment properties; nothing
+        // that comes from the client should be in this object.
+        req.environment = environment;
+
+        // Expose useful information to the client that they might want when
+        // calling via HEAD or similar.
+        res.setHeader('Version', environment.version);
+        res.setHeader('Commit', environment.commit);
+
+        // Carry on.
+        request(req, res);
+      },
     };
   };
 }
