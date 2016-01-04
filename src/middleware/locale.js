@@ -1,5 +1,10 @@
 import detect from 'negotiator/lib/language';
 
+/**
+ * Detect current locales.
+ * @param {Array} locales Supported locales.
+ * @returns {Function} Middleware function.
+ */
 export default function({ locales } = { }) {
   return function(app) {
     if (!locales) {

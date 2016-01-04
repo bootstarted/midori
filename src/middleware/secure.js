@@ -1,3 +1,8 @@
+/**
+ * [function description]
+ * @param {Boolean} secure True to enable security features.
+ * @returns {Function} Middleware function.
+ */
 export default function({
   secure = process.env.NODE_ENV === 'production',
 } = { }) {

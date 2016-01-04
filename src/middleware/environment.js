@@ -29,8 +29,12 @@ export default function({ environment: x } = { }) {
 
         // Expose useful information to the client that they might want when
         // calling via HEAD or similar.
-        res.setHeader('Version', environment.version);
-        res.setHeader('Commit', environment.commit);
+        if (environment.version) {
+          res.setHeader('Version', environment.version);
+        }
+        if (environment.commit) {
+          res.setHeader('Commit', environment.commit);
+        }
 
         // Carry on.
         request(req, res);

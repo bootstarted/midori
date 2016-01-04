@@ -1,5 +1,9 @@
 import compression from 'compression';
 
+/**
+ * [function description]
+ * @returns {[type]} [description]
+ */
 export default function() {
   const compressor = compression();
   return function(app) {

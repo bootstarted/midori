@@ -26,11 +26,13 @@ let index = { };
 function updater({ serve, base }) {
   if (serve) {
     return (stats) => {
+      console.log('UPDATE!!X');
       assets = collect(stats);
       sync(base);
     };
   }
   return (stats) => {
+    console.log('UPDATE!!');
     assets = collect(stats);
   };
 }
@@ -42,11 +44,15 @@ function updater({ serve, base }) {
  */
 export function sync(base) {
   assets.forEach(asset => {
-    asset.contents = readFileSync(base + asset.name);
-    asset.contentType = mime(asset.name);
+    if (!asset.contents) {
+      asset.contents = readFileSync(base + asset.name);
+    }
+    if (!asset.contentType) {
+      asset.contentType = mime(asset.name);
+    }
   });
   index = indexBy(assets, asset => {
-    return asset.publicPath + asset.name;
+    return asset.url;
   });
 }
 
@@ -98,7 +104,12 @@ export function request() {
  * stats Path to webpack stats JSON file.
  * @returns {Function} Middleware.
  */
-export default function({ stats, serve, base, dev } = { }) {
+export default function({
+  stats,
+  serve,
+  base,
+  dev = process.env.HAS_WEBPACK_ASSET_EVENTS,
+} = { }) {
   const update = updater({ serve, base });
 
   // Standard `webpack` output in production is just a single stats file, so

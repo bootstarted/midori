@@ -1,6 +1,9 @@
 import Cookies from 'cookies';
 
-// Switch to `cookies` instead of `cookie-parser` if desired.
+/**
+ * [function description]
+ * @returns {[type]} [description]
+ */
 export default function() {
   return function(app) {
     const { request } = app;

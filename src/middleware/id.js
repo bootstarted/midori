@@ -11,6 +11,7 @@ export default function() {
         // this request with other events; it can be referenced by other
         // modules, other logging systems or even the front-end client.
         req.id = uuid.v1();
+        res.setHeader('Request-Id', req.id);
         request(req, res);
       },
     };
