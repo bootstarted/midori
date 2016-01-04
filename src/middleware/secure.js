@@ -1,4 +1,3 @@
-
 export default function() {
   return function(app) {
     if (process.env.NODE_ENV !== 'production') {

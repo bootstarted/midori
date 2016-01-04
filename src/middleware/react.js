@@ -1,8 +1,5 @@
-
 export default function({
-  store: createStore,
-  state: createInitialState,
-  reducer,
+
 }) {
   return function(app) {
     return {

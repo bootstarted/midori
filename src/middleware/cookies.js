@@ -1,4 +1,3 @@
-
 import Cookies from 'cookies';
 
 // Switch to `cookies` instead of `cookie-parser` if desired.

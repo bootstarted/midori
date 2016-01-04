@@ -1,11 +1,8 @@
-
 import { readFileSync } from 'fs';
 import indexBy from 'lodash/collection/indexBy';
-import path from 'path';
+import compose from 'lodash/function/compose';
 import collect from 'webpack-assets';
-
-const assetPath = './build/client';
-const file = path.join(assetPath, 'stats.json');
+import { lookup as mime } from 'mime';
 
 /**
  * [assets description]
@@ -22,15 +19,30 @@ let assets = [ ];
 let index = { };
 
 /**
- * Given a webpack stats object, create a new set of assets and update the asset
- * index based on that.
+ * Given a webpack stats object, create a new set of assets.
  * @param {[type]} stats [description]
  * @returns {[type]}       [description]
  */
-function update(stats) {
-  assets = collect(stats);
+function updater({ serve, base }) {
+  if (serve) {
+    return (stats) => {
+      assets = collect(stats);
+      sync(base);
+    };
+  }
+  return (stats) => {
+    assets = collect(stats);
+  };
+}
+
+/**
+ * Update the local asset data for serving.
+ * @param {String} base Where on disk to find the assets.
+ * @returns {[type]} [description]
+ */
+export function sync(base) {
   assets.forEach(asset => {
-    asset.contents = readFileSync(assetPath + asset.name);
+    asset.contents = readFileSync(base + asset.name);
     asset.contentType = mime(asset.name);
   });
   index = indexBy(assets, asset => {
@@ -53,6 +65,7 @@ export function files() {
           res.end();
         } else {
           const asset = index[req.url];
+          res.statusCode = 200;
           res.setHeader('ETag', asset.hash);
           res.setHeader('Content-Length', asset.contents.length);
           res.setHeader('Content-Type', asset.contentType);
@@ -65,23 +78,44 @@ export function files() {
   };
 }
 
-export function stats() {
-  // Standard `webpack` output in production is just a single stats file, so
-  // read that and use that for assets.
-  update(JSON.parse(readFileSync(file, 'utf8')));
-
-  // `webpack-udev-server` provides events to the process when new assets have
-  // been generated for the client portion of the code.
-  process.on('webpack-stats', update);
-
-  return function({ request }) {
-    return function(req, res) {
-      req.assets = assets;
-      request(req, res);
+export function request() {
+  return function(app) {
+    const { request } = app;
+    return {
+      ...app,
+      request(req, res) {
+        req.assets = assets;
+        request(req, res);
+      },
     };
   };
 }
 
-export default function(options) {
-  return compose(files(options), stats(options));
+/**
+ * base Path to webpack assets on disk.
+ * dev Allow parent process to send new stats object via IPC.
+ * serve True to serve webpack assets from publicPath, false otherwise.
+ * stats Path to webpack stats JSON file.
+ * @returns {Function} Middleware.
+ */
+export default function({ stats, serve, base, dev } = { }) {
+  const update = updater({ serve, base });
+
+  // Standard `webpack` output in production is just a single stats file, so
+  // read that and use that for assets.
+  if (stats) {
+    update(JSON.parse(readFileSync(stats, 'utf8')));
+  }
+
+  // `webpack-udev-server` provides events to the process when new assets have
+  // been generated for the client portion of the code.
+  if (dev) {
+    process.on('webpack-stats', update);
+  }
+
+  if (serve) {
+    return compose(files(), request());
+  }
+
+  return request();
 }

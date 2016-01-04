@@ -1,6 +1,6 @@
 # http-middleware-metalab
 
-Minimalist http middleware packs for http/express/hapi.
+Minimalist, composable http middleware packs for [http]/[express]/[hapi].
 
 ## Packs
 
