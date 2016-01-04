@@ -1,6 +1,8 @@
-export default function() {
+export default function({
+  secure = process.env.NODE_ENV === 'production',
+} = { }) {
   return function(app) {
-    if (process.env.NODE_ENV !== 'production') {
+    if (!secure) {
       return app;
     }
     const { request } = app;
