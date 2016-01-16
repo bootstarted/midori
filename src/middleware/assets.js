@@ -27,13 +27,11 @@ let index = { };
 function updater({ serve, base }) {
   if (serve) {
     return (stats) => {
-      console.log('UPDATE!!X');
       assets = collect(stats);
       sync(base);
     };
   }
   return (stats) => {
-    console.log('UPDATE!!');
     assets = collect(stats);
   };
 }
