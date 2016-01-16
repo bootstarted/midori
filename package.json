@@ -20,7 +20,8 @@
     "on-finished": "^2.3.0",
     "on-headers": "^1.0.1",
     "useragent": "^2.1.8",
-    "webpack-assets": "^0.1.2"
+    "webpack-assets": "^0.1.2",
+    "yamlparser": "0.0.2"
   },
   "devDependencies": {
     "babel-cli": "^6.3.17",
