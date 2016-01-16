@@ -1,6 +1,6 @@
 # http-middleware-metalab
 
-Minimalist, composable http middleware packs for [http]/[express]/[hapi].
+Minimalist, composable http middleware pack for [http]/[express]/[hapi].
 
 ## Packs
 
@@ -124,6 +124,8 @@ app.listen(8080);
 
 TODO: Figure this out.
 
+[http]: https://nodejs.org/api/http.html
+[hapi]: http://hapijs.com/
 [express]: http://expressjs.com/
 [react]: https://facebook.github.io/react/
 [redux]: https://github.com/rackt/redux
