@@ -1,3 +1,4 @@
+import path from 'path';
 import { readFileSync } from 'fs';
 import indexBy from 'lodash/collection/indexBy';
 import compose from 'lodash/function/compose';
@@ -106,9 +107,9 @@ export function request() {
  */
 export default function({
   stats,
-  serve,
-  base,
+  base = stats ? path.dirname(stats) : null,
   dev = process.env.HAS_WEBPACK_ASSET_EVENTS,
+  serve = !dev && stats,
 } = { }) {
   const update = updater({ serve, base });
 

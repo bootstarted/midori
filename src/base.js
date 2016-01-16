@@ -12,9 +12,15 @@ import secure from './middleware/secure';
 import timing from './middleware/timing';
 import useragent from './middleware/useragent';
 
+// Access-Control-Allow-Origin
+// Cache-Control
+// Date
+// Expires
+// Last-Modified
+// TSV
+
 export default function(options) {
   return compose(
-    empty,
     graceful(),
     timing(),
     logging(options),
@@ -24,6 +30,7 @@ export default function(options) {
     cookies(options),
     environment(options),
     locale(options),
-    useragent(options)
+    useragent(options),
+    empty
   );
 }

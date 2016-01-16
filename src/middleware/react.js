@@ -2,6 +2,22 @@ export default function({
 
 }) {
   return function(app) {
+    const { error: nextError } = app;
+
+    function error(err, context) {
+      // if error is a request error then try to display an error page
+      if (context.req) {
+        try {
+          send(context.req, context.res, {
+            status: err.status || 500,
+          });
+        } catch (err) {
+          nextError(err, context);
+        }
+      }
+      nextError(err, context);
+    }
+
     function send(req, res, {status, locale, markup}) {
       res.statusCode = status;
       res.setHeader('Allow', 'GET');
@@ -15,12 +31,7 @@ export default function({
 
     return {
       ...app,
-      error(err, context) {
-        // if error is a request error
-        send(context.req, context.res, {
-          status: err.status || 500,
-        });
-      },
+      error,
       request(req, res) {
         // const store = createStore(reducer, createInitialState(req, res));
         const state = { };

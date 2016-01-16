@@ -20,6 +20,7 @@ export default function({
         res.setHeader('X-XSS-Protection', '1; mode=block');
         res.setHeader('X-Download-Options', 'noopen');
         res.setHeader('X-Content-Type-Options', 'nosniff');
+        // res.setHeader('Public-Key-Pins', '...');
         request(req, res);
       },
     };
