@@ -1,6 +1,6 @@
 {
   "name": "http-middleware-metalab",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Izaak Schroeder <izaak.schroeder@gmail.com>",
   "license": "CC0-1.0",
   "main": "index.js",
