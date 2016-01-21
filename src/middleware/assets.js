@@ -1,7 +1,7 @@
 import path from 'path';
 import { readFileSync } from 'fs';
-import indexBy from 'lodash/collection/indexBy';
-import compose from 'lodash/function/compose';
+import indexBy from 'lodash/keyBy';
+import compose from 'lodash/flowRight';
 import collect from 'webpack-assets';
 import { lookup as mime } from 'mime';
 

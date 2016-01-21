@@ -37,7 +37,6 @@ export default function({
         const state = { };
 
         // Extract useful header information from react app state.
-        const { status = 200, locale = null } = state;
         send(req, res, state);
       },
     };

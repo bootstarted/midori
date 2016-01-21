@@ -1,4 +1,4 @@
-import compose from 'lodash/function/compose';
+import compose from 'lodash/flowRight';
 
 import compression from './middleware/compression';
 import cookies from './middleware/cookies';
