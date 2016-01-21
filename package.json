@@ -14,14 +14,13 @@
     "compression": "^1.6.0",
     "cookies": "^0.5.1",
     "lodash": "^4.0.0",
-    "mime-types": "^2.1.9",
     "morgan": "^1.6.1",
     "negotiator": "^0.6.0",
     "node-uuid": "^1.4.7",
     "on-finished": "^2.3.0",
     "on-headers": "^1.0.1",
     "useragent": "^2.1.8",
-    "webpack-assets": "^0.1.2",
+    "webpack-assets": "^0.1.4",
     "yamlparser": "0.0.2"
   },
   "devDependencies": {

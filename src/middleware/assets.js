@@ -3,7 +3,6 @@ import { readFileSync } from 'fs';
 import indexBy from 'lodash/keyBy';
 import compose from 'lodash/flowRight';
 import collect from 'webpack-assets';
-import { lookup } from 'mime-types';
 
 /**
  * [assets description]
@@ -43,13 +42,8 @@ function updater({ serve, base }) {
  */
 export function sync(base) {
   assets.forEach(asset => {
-    const name = path.basename(asset.url);
-
     if (!asset.contents) {
-      asset.contents = readFileSync(path.join(base, name));
-    }
-    if (!asset.contentType) {
-      asset.contentType = lookup(name);
+      asset.contents = readFileSync(path.join(base, asset.file));
     }
   });
   index = indexBy(assets, asset => {
