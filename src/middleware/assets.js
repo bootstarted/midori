@@ -43,11 +43,13 @@ function updater({ serve, base }) {
  */
 export function sync(base) {
   assets.forEach(asset => {
+    const name = path.basename(asset.url);
+
     if (!asset.contents) {
-      asset.contents = readFileSync(base + asset.name);
+      asset.contents = readFileSync(path.join(base, name));
     }
     if (!asset.contentType) {
-      asset.contentType = mime(asset.name);
+      asset.contentType = mime(name);
     }
   });
   index = indexBy(assets, asset => {
