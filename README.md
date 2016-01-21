@@ -2,6 +2,12 @@
 
 Minimalist, composable http middleware pack for [http]/[express]/[hapi].
 
+![build status](http://img.shields.io/travis/metalabdesign/http-middleware-metalab/master.svg?style=flat)
+![coverage](http://img.shields.io/coveralls/metalabdesign/http-middleware-metalab/master.svg?style=flat)
+![license](http://img.shields.io/npm/l/http-middleware-metalab.svg?style=flat)
+![version](http://img.shields.io/npm/v/http-middleware-metalab.svg?style=flat)
+![downloads](http://img.shields.io/npm/dm/http-middleware-metalab.svg?style=flat)
+
 ## Packs
 
  * base - Some sensible defaults.
