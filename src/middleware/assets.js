@@ -62,25 +62,29 @@ export function sync(base) {
  * @returns {Function} Herp.
  */
 export function files() {
-  return function({ request }) {
-    return function(req, res) {
-      if (index[req.url]) {
-        if (req.method !== 'GET' && req.method !== 'HEAD') {
-          res.statusCode = 405;
-          res.setHeader('Allow', 'GET, HEAD');
-          res.setHeader('Content-Length', '0');
-          res.end();
+  return function(app) {
+    const { request } = app;
+    return {
+      ...app,
+      request(req, res) {
+        if (index[req.url]) {
+          if (req.method !== 'GET' && req.method !== 'HEAD') {
+            res.statusCode = 405;
+            res.setHeader('Allow', 'GET, HEAD');
+            res.setHeader('Content-Length', '0');
+            res.end();
+          } else {
+            const asset = index[req.url];
+            res.statusCode = 200;
+            res.setHeader('ETag', asset.hash);
+            res.setHeader('Content-Length', asset.contents.length);
+            res.setHeader('Content-Type', asset.contentType);
+            res.end(asset.contents);
+          }
         } else {
-          const asset = index[req.url];
-          res.statusCode = 200;
-          res.setHeader('ETag', asset.hash);
-          res.setHeader('Content-Length', asset.contents.length);
-          res.setHeader('Content-Type', asset.contentType);
-          res.end(asset.contents);
+          request(req, res);
         }
-      } else {
-        request(req, res);
-      }
+      },
     };
   };
 }
