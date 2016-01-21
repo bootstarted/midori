@@ -7,7 +7,7 @@
   "scripts": {
     "prepublish": "./node_modules/.bin/babel -s inline -d . ./src --source-maps true",
     "test": "npm run lint && npm run spec",
-    "spec": "NODE_ENV=test ./node_modules/.bin/_mocha --recursive -r test/helpers/chai.js --compilers js:babel-core/register -R spec test/spec",
+    "spec": "NODE_ENV=test ./node_modules/.bin/_mocha --recursive -r test/helpers/chai.js -r adana-dump --compilers js:babel-core/register -R spec test/spec",
     "lint": "eslint ."
   },
   "dependencies": {
@@ -25,6 +25,9 @@
     "yamlparser": "0.0.2"
   },
   "devDependencies": {
+    "adana-cli": "^0.1.1",
+    "adana-dump": "^0.1.0",
+    "adana-format-lcov": "^0.1.1",
     "babel-cli": "^6.3.17",
     "babel-core": "^6.3.26",
     "babel-preset-metalab": "^0.1.4",
