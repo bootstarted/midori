@@ -13,7 +13,13 @@ export default ({
     handler(...params, store);
 
     Promise.resolve(render(req, res, store))
-      .catch((err) => app.error(err, req, res));
+      .then((result) => {
+        res.render = result;
+        res.body = result.markup;
+      })
+      .catch((err) => {
+        app.error(err, req, res);
+      });
   };
 
   return {
