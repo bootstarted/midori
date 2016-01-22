@@ -63,22 +63,12 @@ In that sense http middleware is even less opinionated than [express] middleware
 ### With `http`
 
 ```javascript
-import compose from 'lodash/function/compose';
 import http from 'http';
-
+import connect from 'http-middleware-metalab/adapter/http';
 import base from 'http-middleware-metalab/base';
-import webpack from 'http-middleware-metalab/webpack';
 
 const server = http.createServer();
-const createApp = compose(
-  base({
-    locales: [ 'en-US' ],
-  }),
-  webpack({
-    assets: '/assets',
-  })
-);
-
+const createApp = base();
 const app = createApp({
   request(req, res) {
     res.statusCode = 200;
@@ -89,46 +79,37 @@ const app = createApp({
   },
 });
 
-server.on('request', app.request);
-server.on('error', app.error);
-
-server.listen(8080);
+connect(app, server).listen(8080);
 ```
 
 ### With `express`
 
 ```javascript
-import compose from 'lodash/function/compose';
-import http from 'http';
-
+import express from 'express';
+import connector from 'http-middleware-metalab/adapter/express';
 import base from 'http-middleware-metalab/base';
-import webpack from 'http-middleware-metalab/webpack';
 
-const createMiddleware = compose(
-  base({
-    locales: [ 'en-US' ],
-  }),
-  webpack({
-    assets: '/assets',
-  })
-);
-
+const createMiddleware = base();
 const app = express();
 
-app.use((req, res, next) => {
-  const middleware = createMiddleware({
-    error: next,
-    request: () => next(),
-  });
-  middleware.request(req, res);
-});
-
+app.use(connector(createMiddleware));
 app.listen(8080);
 ```
 
 ### With `hapi`
 
-TODO: Figure this out.
+```javascript
+import { Server } from 'hapi';
+import connector from 'http-middleware-metalab/adapter/hapi';
+import base from 'http-middleware-metalab/base';
+
+const createMiddleware = base();
+const server = new Server();
+
+server.connection({ port: 8080 });
+server.ext(connector(createMiddleware));
+server.start();
+```
 
 [http]: https://nodejs.org/api/http.html
 [hapi]: http://hapijs.com/

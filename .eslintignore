@@ -1,3 +1,4 @@
 *.js
 middleware/**/*
+adapter/**/*
 node_modules
