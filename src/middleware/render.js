@@ -14,8 +14,9 @@ export default ({
 
     Promise.resolve(render(req, res, store))
       .then((result) => {
-        res.render = result;
-        res.body = result.markup;
+        req.render = result;
+        req.body = result.markup;
+        app.request(req, res);
       })
       .catch((err) => {
         app.error(err, req, res);
