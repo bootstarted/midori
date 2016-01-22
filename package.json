@@ -3,6 +3,7 @@
   "version": "0.2.1",
   "author": "Izaak Schroeder <izaak.schroeder@gmail.com>",
   "license": "CC0-1.0",
+  "repository": "metalabdesign/http-middleware-metalab",
   "main": "index.js",
   "scripts": {
     "prepublish": "./node_modules/.bin/babel -s inline -d . ./src --source-maps true",
