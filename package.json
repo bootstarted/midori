@@ -3,11 +3,12 @@
   "version": "0.2.1",
   "author": "Izaak Schroeder <izaak.schroeder@gmail.com>",
   "license": "CC0-1.0",
+  "repository": "metalabdesign/http-middleware-metalab",
   "main": "index.js",
   "scripts": {
     "prepublish": "./node_modules/.bin/babel -s inline -d . ./src --source-maps true",
     "test": "npm run lint && npm run spec",
-    "spec": "NODE_ENV=test ./node_modules/.bin/_mocha --recursive -r test/helpers/chai.js -r adana-dump --compilers js:babel-core/register -R spec test/spec",
+    "spec": "NODE_ENV=test ./test/script/spec.sh",
     "lint": "eslint ."
   },
   "dependencies": {
@@ -31,11 +32,14 @@
     "babel-core": "^6.3.26",
     "babel-preset-metalab": "^0.1.4",
     "chai": "^3.4.1",
+    "chai-http": "^1.0.0",
     "eslint": "^1.10.3",
     "eslint-config-metalab": "^1.0.0-rc.4",
     "eslint-plugin-filenames": "^0.2.0",
     "eslint-plugin-import": "^0.11.0",
     "eslint-plugin-react": "^3.11.2",
+    "express": "^4.13.4",
+    "hapi": "^12.1.0",
     "mocha": "^2.3.4",
     "sinon": "^1.17.2",
     "sinon-chai": "^2.8.0"

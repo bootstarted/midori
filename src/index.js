@@ -1,11 +1,5 @@
 import base from './base';
 import webpack from './webpack';
+import connect from './adapter/http';
 
-export function connect(app, server) {
-  Object.keys(app).forEach(evt => {
-    server.on(evt, app[evt]);
-  });
-  return server;
-}
-
-export { base, webpack };
+export { connect, base, webpack };
