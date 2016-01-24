@@ -1,12 +1,15 @@
 import isFunction from 'lodash/isFunction';
 
-export default (body = (req) => req.body) => (app) => {
-  const getBody = isFunction(body) ? body : () => body;
+export default (getBody = (req) => req.body) => (app) => {
+  const finalGetBody = isFunction(getBody) ? getBody : () => getBody;
 
   return {
     ...app,
     request(req, res) {
-      res.end(getBody(req));
+      return Promise.resolve(req)
+        .then(finalGetBody)
+        .then((body) => res.end(body))
+        .catch((err) => app.error(err, req, res));
     },
   };
 };
