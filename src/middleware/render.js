@@ -4,13 +4,13 @@ export default ({
   createStore = () => ({}),
   render = () => {},
 }) => (app)=> {
-  const handleEvent = (mapParams, handler) => (...params) => {
-    const { req, res } = mapParams(...params);
+  const handleEvent = (mapArgs, handler) => (...args) => {
+    const { req, res } = mapArgs(...args);
     const store = createStore();
     req.store = store;
 
     // Populate store state from request state
-    handler(...params, store);
+    handler(...args, store);
 
     return Promise.resolve()
       .then(() => render(req, res, store))
