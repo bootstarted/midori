@@ -5,28 +5,59 @@ import base from '../../../src/base';
 import connector from '../../../src/adapter/express';
 
 const createMiddleware = base();
+const errorMiddleware = ({ error }) => {
+  return {
+    request: (req, res) => error(new Error(), req, res),
+  };
+};
 
 describe('express', () => {
   let app;
   let server;
 
-  beforeEach(done => {
-    app = express();
-    app.use(connector(createMiddleware));
-    app.get('/', (req, res) => res.status(200).send());
-    server = http.createServer(app);
-    server.listen(done);
+  describe('normal', () => {
+    beforeEach(done => {
+      app = express();
+      app.use(connector(createMiddleware));
+      app.use((err, req, res, next) => (res.status(599).send(), next()));
+      app.get('/', (req, res) => res.status(200).send());
+      server = http.createServer(app);
+      server.listen(done);
+    });
+
+    afterEach(done => {
+      server.close(done);
+      app = null;
+      server = null;
+    });
+
+    it('should return a result', () => {
+      return request(server).get('/').then(res => {
+        expect(res).to.have.status(200);
+      });
+    });
   });
 
-  afterEach(done => {
-    server.close(done);
-    app = null;
-    server = null;
-  });
+  describe('errors', () => {
+    beforeEach(done => {
+      app = express();
+      app.use(connector(errorMiddleware));
+      app.use((err, req, res, next) => (res.status(599).send(), next()));
+      app.get('/', (req, res) => res.status(200).send());
+      server = http.createServer(app);
+      server.listen(done);
+    });
 
-  it('should return a result', () => {
-    return request(server).get('/').then(res => {
-      expect(res).to.have.status(200);
+    afterEach(done => {
+      server.close(done);
+      app = null;
+      server = null;
+    });
+
+    it('should return a result', () => {
+      return request(server).get('/').then(res => {
+        expect(res).to.have.status(599);
+      });
     });
   });
 });
