@@ -12,7 +12,8 @@ export default ({
     // Populate store state from request state
     handler(...params, store);
 
-    Promise.resolve(render(req, res, store))
+    return Promise.resolve()
+      .then(() => render(req, res, store))
       .then((result) => {
         req.render = result;
         req.body = result.markup;
