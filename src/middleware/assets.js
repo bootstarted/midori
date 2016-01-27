@@ -1,5 +1,5 @@
 import path from 'path';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import indexBy from 'lodash/keyBy';
 import compose from 'lodash/flowRight';
 import collect from 'webpack-assets';
@@ -43,7 +43,7 @@ function updater({ serve, base }) {
 export function sync(base) {
   assets.forEach(asset => {
     if (!asset.contents) {
-      asset.contents = readFileSync(path.join(base, asset.file));
+      asset.contents = readFileSync(path.join(base, asset.name));
     }
   });
   index = indexBy(assets, asset => {
@@ -106,15 +106,21 @@ export function request() {
 export default function({
   stats,
   base = stats ? path.dirname(stats) : null,
-  dev = process.env.HAS_WEBPACK_ASSET_EVENTS,
+  dev = process.env.HAS_WEBPACK_STATS_EVENTS,
   serve = !dev && stats,
 } = { }) {
   const update = updater({ serve, base });
+  const exists = stats && existsSync(stats);
 
   // Standard `webpack` output in production is just a single stats file, so
   // read that and use that for assets.
-  if (stats) {
+  if (exists) {
     update(JSON.parse(readFileSync(stats, 'utf8')));
+  }
+
+  if (serve && !exists) {
+    /* eslint no-console: 0 */
+    console.error(`Unable to load stats: ${stats}.`);
   }
 
   // `webpack-udev-server` provides events to the process when new assets have
@@ -123,7 +129,7 @@ export default function({
     process.on('webpack-stats', update);
   }
 
-  if (serve) {
+  if (exists) {
     return compose(files(), request());
   }
 
