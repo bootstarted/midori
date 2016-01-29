@@ -1,6 +1,6 @@
 #!/bin/sh
 
-OPTS="-r test/helpers/chai.js -r adana-dump --compilers js:babel-core/register -R spec"
+OPTS="-r test/helpers/chai.js -r adana-dump --compilers js:babel-core/register -R spec --recursive"
 SPECS="test/spec/**/*.spec.js"
 
 # Check for stupid HAPI
@@ -10,4 +10,4 @@ if [ $? -ne 0 ]; then
 fi
 
 set -x
-./node_modules/.bin/_mocha ${OPTS} ${SPECS}
+./node_modules/.bin/_mocha ${OPTS} "${SPECS}"
