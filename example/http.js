@@ -1,8 +1,8 @@
 /* eslint no-console: 0 */
 import http from 'http';
 import base from '../src/base';
+import connect from '../src/adapter/http';
 
-const server = http.createServer();
 const createApp = base({
   locales: [ 'en-US' ],
 });
@@ -17,7 +17,4 @@ const app = createApp({
   },
 });
 
-server.on('request', app.request);
-server.on('error', app.error);
-
-server.listen(8081);
+connect(app, http.createServer()).listen(8081);
