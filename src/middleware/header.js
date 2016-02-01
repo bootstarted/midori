@@ -61,7 +61,7 @@ const header = (header, getValue) => (app) => {
         .then(finalGetValue)
         .then((value) => {
           value && res.setHeader(header, value);
-          app.request(req, res);
+          return app.request(req, res);
         })
         .catch((err) => app.error(err, req, res));
     },
