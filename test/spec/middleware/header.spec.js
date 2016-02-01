@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import header from '../../../src/middleware/header';
+import header, {headerPresets} from '../../../src/middleware/header';
 
 describe('header', () => {
   let res;
@@ -63,6 +63,27 @@ describe('header', () => {
       expect(next.error).to.be.calledWith(err, req, res);
       expect(res.setHeader).to.not.have.been.called;
       done();
+    });
+  });
+
+  describe('header presets', () => {
+    it('should have correct key-value mappings', () => {
+      const kebab = (value) => {
+        return value.replace(/([A-Z])/g, '-$1').toLowerCase();
+      };
+
+      Object.keys(headerPresets).forEach((key) => {
+        expect(kebab(key)).to.equal(headerPresets[key].toLowerCase());
+      });
+    });
+
+    it('should be available on the header middleware', (done) => {
+      const app = header.contentType('bar')(next);
+
+      app.request(req, res).then(() => {
+        expect(res.setHeader).to.be.calledWith('Content-Type', 'bar');
+        done();
+      });
     });
   });
 });
