@@ -1,6 +1,6 @@
 {
   "name": "http-middleware-metalab",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": "Izaak Schroeder <izaak.schroeder@gmail.com>",
   "license": "CC0-1.0",
   "repository": "metalabdesign/http-middleware-metalab",
