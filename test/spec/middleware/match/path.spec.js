@@ -58,6 +58,27 @@ describe('path match', () => {
     expect(next).to.be.calledOnce;
   });
 
+  it('should handle nested root paths', () => {
+    const yes = sinon.spy();
+    const no = sinon.spy();
+    const next = sinon.spy();
+
+    const sub = match(path('/foo'), tap(yes), tap(no));
+
+    const app = match(
+      path('/'),
+      sub
+    )({ request: next });
+
+    app.request({
+      url: '/foo',
+    }, {});
+
+    expect(yes).to.be.calledOnce;
+    expect(no).to.not.be.calledOnce;
+    expect(next).to.be.calledOnce;
+  });
+
   it('should handle path parameters', () => {
     const yes = sinon.spy();
     const next = sinon.spy();
