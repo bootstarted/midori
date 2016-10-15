@@ -3,7 +3,10 @@ import {parse, tokensToRegExp} from 'path-to-regexp';
 import {combine} from './util';
 
 export default (path) => (app) => {
-  const tokens = [ ...(app.tokens || []), ...parse(path) ];
+  const tokens = [
+    ...(app.tokens || []),
+    ...(path === '/' ? [] : parse(path)),
+  ];
   const regexp = tokensToRegExp(tokens, { end: false });
   const keys = tokens.filter(t => typeof t === 'object');
 
