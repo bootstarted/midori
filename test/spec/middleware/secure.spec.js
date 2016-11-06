@@ -3,9 +3,17 @@ import sinon from 'sinon';
 
 import secure from '../../../src/middleware/secure';
 
-it('should enable strict transport security', () => {
+it('should enable security headers', (done) => {
   const spy = sinon.spy();
-  const app = secure({ secure: true })({ request: spy });
-  app.request({}, { setHeader: spy });
-  expect(spy).to.be.calledWith('Strict-Transport-Security');
+  const res = { setHeader: spy };
+  const app = secure({ secure: true })({ request: () => {} });
+  app.request({}, res)
+    .then(() => {
+      expect(res.setHeader).to.be.calledWith('Strict-Transport-Security');
+      expect(res.setHeader).to.be.calledWith('X-Frame-Options');
+      expect(res.setHeader).to.be.calledWith('X-XSS-Protection');
+      expect(res.setHeader).to.be.calledWith('X-Download-Options');
+      expect(res.setHeader).to.be.calledWith('X-Content-Type-Options');
+      done();
+    });
 });

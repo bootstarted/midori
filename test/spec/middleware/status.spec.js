@@ -63,4 +63,15 @@ describe('status', () => {
       done();
     });
   });
+
+  describe('status presets', () => {
+    it('should be available on the status middleware', (done) => {
+      const app = status.notFound()(next);
+
+      app.request(req, res).then(() => {
+        expect(res.statusCode).to.be.equal(404);
+        done();
+      });
+    });
+  });
 });
