@@ -1,25 +1,19 @@
-# http-middleware-metalab
+# midori
 
-Minimalist, composable http middleware pack for [http]/[express]/[hapi].
+Minimalist, composable http apps for [http]/[express]/[hapi].
 
-![build status](http://img.shields.io/travis/metalabdesign/http-middleware-metalab/master.svg?style=flat)
-![coverage](http://img.shields.io/coveralls/metalabdesign/http-middleware-metalab/master.svg?style=flat)
-![license](http://img.shields.io/npm/l/http-middleware-metalab.svg?style=flat)
-![version](http://img.shields.io/npm/v/http-middleware-metalab.svg?style=flat)
-![downloads](http://img.shields.io/npm/dm/http-middleware-metalab.svg?style=flat)
-
-## Packs
-
- * base - Some sensible defaults.
- * webpack - For serving assets from [webpack]-based projects.
- * react - Server-side rendering with [react] and [redux].
+![build status](http://img.shields.io/travis/metalabdesign/midori/master.svg?style=flat)
+![coverage](http://img.shields.io/coveralls/metalabdesign/midori/master.svg?style=flat)
+![license](http://img.shields.io/npm/l/midori.svg?style=flat)
+![version](http://img.shields.io/npm/v/midori.svg?style=flat)
+![downloads](http://img.shields.io/npm/dm/midori.svg?style=flat)
 
 ## Usage
 
-Install `http-middleware-metalab` and add it to your `package.json` file:
+Install `midori` and add it to your `package.json` file:
 
 ```sh
-npm install --save http-middleware-metalab
+npm install --save midori
 ```
 
 These middleware components are NOT the same as express middleware; they are conceptually designed in a manner more similar to redux stores. Every middleware is an object with properties corresponding to events on an `http.Server` object; e.g. `request`, `error`, `upgrade`, etc. Each middleware function takes an existing middleware object and composes it.
@@ -64,11 +58,11 @@ In that sense http middleware is even less opinionated than [express] middleware
 
 ```javascript
 import http from 'http';
-import connect from 'http-middleware-metalab/adapter/http';
-import base from 'http-middleware-metalab/base';
+import connect from 'midori/connect';
+import empty from 'midori/empty';
 
 const server = http.createServer();
-const createApp = base();
+const createApp = empty;
 const app = createApp({
   request(req, res) {
     res.statusCode = 200;
@@ -86,10 +80,10 @@ connect(app, server).listen(8080);
 
 ```javascript
 import express from 'express';
-import connector from 'http-middleware-metalab/adapter/express';
-import base from 'http-middleware-metalab/base';
+import connector from 'midori-express';
+import empty from 'midori/empty';
 
-const createMiddleware = base();
+const createMiddleware = empty();
 const app = express();
 
 app.use(connector(createMiddleware));
@@ -99,18 +93,20 @@ app.listen(8080);
 ### With `hapi`
 
 ```javascript
-import { Server } from 'hapi';
-import connector from 'http-middleware-metalab/adapter/hapi';
-import base from 'http-middleware-metalab/base';
+import {Server} from 'hapi';
+import connector from 'midori-hapi';
+import empty from 'midori/empty';
 
-const createMiddleware = base();
+const createMiddleware = empty();
 const server = new Server();
 
-server.connection({ port: 8080 });
+server.connection({port: 8080});
 server.ext(connector(createMiddleware));
 server.start();
 ```
 
+[midori-hapi]: https://github.com/metalabdesign/midori-hapi
+[midori-express]: https://github.com/metalabdesign/midori-express
 [http]: https://nodejs.org/api/http.html
 [hapi]: http://hapijs.com/
 [express]: http://expressjs.com/

@@ -1,11 +1,11 @@
 /* eslint no-console: 0 */
 import compose from 'lodash/flowRight';
 import http from 'http';
-import serve from '../src/middleware/serve';
-import status from '../src/middleware/status';
-import send from '../src/middleware/send';
-import verbs from '../src/middleware/match/verbs';
-import connect from '../src/adapter/http';
+import serve from '../src/serve';
+import status from '../src/status';
+import send from '../src/send';
+import verbs from '../src/match/verbs';
+import connect from '../src/connect';
 
 const createApp = compose(
   verbs.get('/foo', serve({ root: __dirname })),

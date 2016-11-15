@@ -1,9 +1,9 @@
 /* eslint no-console: 0 */
 import compose from 'lodash/flowRight';
 import http from 'http';
-import send from '../src/middleware/send';
-import verbs from '../src/middleware/match/verbs';
-import connect from '../src/adapter/http';
+import send from '../src/send';
+import verbs from '../src/match/verbs';
+import connect from '../src/connect';
 
 console.log(verbs);
 

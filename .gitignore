@@ -3,6 +3,5 @@ node_modules
 *.map
 build
 /*.js
-/middleware
-/adapter
+/match
 coverage

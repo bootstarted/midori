@@ -1,9 +1,9 @@
 /* eslint no-console: 0 */
 import compose from 'lodash/flowRight';
 import http from 'http';
-import send from '../src/middleware/send';
-import thunk from '../src/middleware/thunk';
-import connect from '../src/adapter/http';
+import send from '../src/send';
+import thunk from '../src/thunk';
+import connect from '../src/connect';
 
 const createApp = compose(
   thunk((app) => {

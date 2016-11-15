@@ -1,4 +1,3 @@
 *.js
-middleware/**/*
-adapter/**/*
+match/**/*
 node_modules

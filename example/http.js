@@ -1,7 +1,7 @@
 /* eslint no-console: 0 */
 import http from 'http';
-import base from '../src/base';
-import connect from '../src/adapter/http';
+import base from '../src/empty';
+import connect from '../src/connect';
 
 const createApp = base({
   locales: [ 'en-US' ],
