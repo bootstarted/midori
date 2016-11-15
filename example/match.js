@@ -1,10 +1,10 @@
 /* eslint no-console: 0 */
 import compose from 'lodash/flowRight';
 import http from 'http';
-import send from '../src/middleware/send';
-import match from '../src/middleware/match';
-import path from '../src/middleware/match/path';
-import connect from '../src/adapter/http';
+import send from '../src/send';
+import match from '../src/match';
+import path from '../src/match/path';
+import connect from '../src/connect';
 
 const createApp = compose(
   match(path('/foo'), send('Hi from foo')),

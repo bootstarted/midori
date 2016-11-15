@@ -1,7 +1,7 @@
 /* eslint no-console: 0 */
 import http from 'http';
-import proxy from '../src/middleware/proxy';
-import connect from '../src/adapter/http';
+import proxy from '../src/proxy';
+import connect from '../src/connect';
 
 const createApp = proxy({ target: 'https://www.google.com', secure: false });
 
