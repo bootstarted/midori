@@ -18,7 +18,7 @@ export default (options) => {
         const stream = send(req, path, options);
 
         stream
-          .on('error', error)
+          .on('error', (err) => error(err, req, res))
           // .on('directory', redirect)
           // .on('headers', headers)
           .pipe(res);
