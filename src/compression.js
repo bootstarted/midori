@@ -1,24 +1,13 @@
+// @flow
 import compression from 'compression';
+import middleware from './middleware';
+
+import type {AppCreator} from './types';
 
 /**
- * [function description]
- * @returns {[type]} [description]
+ * Compress the response sent back to the client.
+ * @param {?Object} options Compression options.
+ * @returns {Function} App creator.
  */
-export default function() {
-  const compressor = compression();
-  return function(app) {
-    const { request, error } = app;
-    return {
-      ...app,
-      request(req, res) {
-        compressor(req, res, err => {
-          if (err) {
-            error(err, req, res);
-          } else {
-            request(req, res);
-          }
-        });
-      },
-    };
-  };
-}
+export default (options: ?Object): AppCreator =>
+  middleware(compression(options));

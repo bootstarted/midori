@@ -1,5 +1,6 @@
-import { expect } from 'chai';
+import {expect} from 'chai';
 import sinon from 'sinon';
+import url from 'url';
 
 import redirect from '../../src/redirect';
 
@@ -35,6 +36,14 @@ describe('redirect', () => {
     });
   });
 
+  it('should work with url objects', () => {
+    const app = redirect(url.parse('http://www.something.com/foo'))(next);
+    app.request(req, res);
+    expect(res.writeHead).to.be.calledWithMatch(302, {
+      Location: 'http://www.something.com/foo',
+    });
+  });
+
   it('should set the status code and url for functions', () => {
     const app = redirect(() => '/foo')(next);
     app.request(req, res);
@@ -43,9 +52,23 @@ describe('redirect', () => {
     });
   });
 
-  it('should fail for invalid parameters', () => {
+  it('should set the custom status code', () => {
+    const app = redirect(304, () => '/foo')(next);
+    app.request(req, res);
+    expect(res.writeHead).to.be.calledWithMatch(304, {
+      Location: '/foo',
+    });
+  });
+
+  it('should fail eagerly for invalid parameters', () => {
     expect(() => {
       redirect(false);
     }).to.throw(TypeError);
+  });
+
+  it('should fail for invalid function results', () => {
+    const app = redirect(() => false)(next);
+    app.request(req, res);
+    expect(next.error).to.be.called;
   });
 });

@@ -1,7 +1,7 @@
-import compose from 'lodash/flowRight';
-import { expect } from 'chai';
+import {expect} from 'chai';
 import sinon from 'sinon';
 
+import compose from '../../../src/compose';
 import tap from '../../../src/tap';
 import match from '../../../src/match';
 import path from '../../../src/match/path';
@@ -11,7 +11,7 @@ describe('path match', () => {
     const yes = sinon.spy();
     const no = sinon.spy();
     const next = sinon.spy();
-    const app = match(path('/foo'), tap(yes), tap(no))({ request: next });
+    const app = match(path('/foo'), tap(yes), tap(no))({request: next});
 
     app.request({
       url: '/foo',
@@ -26,7 +26,7 @@ describe('path match', () => {
     const yes = sinon.spy();
     const no = sinon.spy();
     const next = sinon.spy();
-    const app = match(path('/foo'), tap(yes), tap(no))({ request: next });
+    const app = match(path('/foo'), tap(yes), tap(no))({request: next});
 
     app.request({
       url: '/bar',
@@ -47,7 +47,7 @@ describe('path match', () => {
     const app = match(
       path('/foo'),
       sub
-    )({ request: next });
+    )({request: next});
 
     app.request({
       url: '/foo/bar',
@@ -68,7 +68,7 @@ describe('path match', () => {
     const app = match(
       path('/'),
       sub
-    )({ request: next });
+    )({request: next});
 
     app.request({
       url: '/foo',
@@ -82,13 +82,13 @@ describe('path match', () => {
   it('should handle path parameters', () => {
     const yes = sinon.spy();
     const next = sinon.spy();
-    const app = match(path('/foo/:bar'), tap(yes))({ request: next });
+    const app = match(path('/foo/:bar'), tap(yes))({request: next});
 
     app.request({
       url: '/foo/hello',
     }, {});
 
-    expect(yes).to.be.calledWithMatch(req => req.params.bar === 'hello');
+    expect(yes).to.be.calledWithMatch((req) => req.params.bar === 'hello');
     expect(next).to.be.calledOnce;
   });
 
@@ -99,7 +99,7 @@ describe('path match', () => {
     const app = compose(
       match(path('/foo'), tap(yes)),
       match(path('/bar'), tap(no))
-    )({ request: next });
+    )({request: next});
 
     app.request({
       url: '/foo/bar',
@@ -113,13 +113,34 @@ describe('path match', () => {
   it('should set the complete matched path', () => {
     const yes = sinon.spy();
     const next = sinon.spy();
-    const app = match(path('/foo/:bar/baz'), tap(yes))({ request: next });
+    const app = match(path('/foo/:bar/baz'), tap(yes))({request: next});
 
     app.request({
       url: '/foo/hello/baz/qux',
     }, {});
 
-    expect(yes).to.be.calledWithMatch(req => req.path === '/foo/hello/baz');
+    expect(yes).to.be.calledWithMatch((req) => req.path === '/foo/hello/baz');
+    expect(next).to.be.calledOnce;
+  });
+
+  it('should handle nested url parameters', () => {
+    const yes = sinon.spy();
+    const no = sinon.spy();
+    const next = sinon.spy();
+
+    const sub = match(path('/foo/:baz'), tap(yes), tap(no));
+
+    const app = match(
+      path('/bar/:qux'),
+      sub
+    )({request: next});
+
+    app.request({
+      url: '/bar/5/foo/9',
+    }, {});
+
+    expect(yes).to.be.calledOnce;
+    expect(no).to.not.be.calledOnce;
     expect(next).to.be.calledOnce;
   });
 });

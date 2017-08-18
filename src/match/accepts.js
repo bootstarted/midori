@@ -1,8 +1,11 @@
-import {guard, create} from './util';
+import Negotiator from 'negotiator';
+import {create} from './util';
 
-export default (header, check) => {
-  const g = guard(check);
+export default (check) => {
   return create((req) => {
-    return req.accepts.some(g);
+    if (!req.negotiator) {
+      req.negotiator = new Negotiator(req);
+    }
+    return !!req.negotiator.mediaType(check);
   });
 };

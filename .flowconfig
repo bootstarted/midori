@@ -1,0 +1,9 @@
+[ignore]
+.*\.flow
+[include]
+
+[libs]
+
+[lints]
+
+[options]

@@ -1,28 +1,13 @@
 /* eslint no-console: 0 */
-import compose from 'lodash/flowRight';
-import http from 'http';
-import send from '../src/send';
-import thunk from '../src/thunk';
-import connect from '../src/connect';
+import {request, send} from '../src';
 
-const createApp = compose(
-  thunk((app) => {
-    const a = send('Hello')(app);
-    const b = send('World')(app);
-    return () => {
-      return (Math.random() > 0.5) ? a : b;
-    };
-  })
-);
+const a = send('Hello');
+const b = send('World');
 
-const app = createApp({
-  request(req, res) {
-    console.log('UNREACHABLE');
-    res.end();
-  },
-  error(err) {
-    console.log('GOT ERROR', err);
-  },
+const createApp = request(() => {
+  return (Math.random() > 0.5) ? a : b;
 });
 
-connect(app, http.createServer()).listen(8081);
+const app = createApp();
+
+app.listen(8081);

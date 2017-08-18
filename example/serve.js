@@ -1,24 +1,10 @@
 /* eslint no-console: 0 */
-import compose from 'lodash/flowRight';
-import http from 'http';
-import serve from '../src/serve';
-import status from '../src/status';
-import send from '../src/send';
-import verbs from '../src/match/verbs';
-import connect from '../src/connect';
+import {get, serve, compose} from '../src';
 
 const createApp = compose(
-  verbs.get('/foo', serve({ root: __dirname })),
-  compose(status(404), send()),
+  get('/foo', serve({root: __dirname})),
 );
 
-const app = createApp({
-  request() {
-    console.log('GOT REQUEST');
-  },
-  error(err) {
-    console.log('GOT ERROR', err);
-  },
-});
+const app = createApp();
 
-connect(app, http.createServer()).listen(8081);
+app.listen(8081);

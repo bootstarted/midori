@@ -1,3 +1,5 @@
-*.js
+/*.js
 match/**/*
+internal/**/*
+lib/**/*
 node_modules
