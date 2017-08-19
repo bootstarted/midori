@@ -1,5 +1,13 @@
 {
+  "plugins": [
+    "syntax-object-rest-spread",
+    "transform-object-rest-spread"
+  ],
   "presets": [
-    "metalab"
+    ["env", {
+      "targets": {
+        "node": 4
+      }
+    }]
   ]
 }
