@@ -3,7 +3,7 @@
 Minimalist, composable http apps for [http]/[express]/[hapi].
 
 ![build status](http://img.shields.io/travis/metalabdesign/midori/master.svg?style=flat)
-![coverage](http://img.shields.io/coveralls/metalabdesign/midori/master.svg?style=flat)
+![coverage](https://img.shields.io/codecov/c/github/metalabdesign/midori/master.svg?style=flat)
 ![license](http://img.shields.io/npm/l/midori.svg?style=flat)
 ![version](http://img.shields.io/npm/v/midori.svg?style=flat)
 ![downloads](http://img.shields.io/npm/dm/midori.svg?style=flat)
