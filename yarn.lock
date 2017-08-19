@@ -27,9 +27,9 @@ acorn@^5.1.1:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-5.1.1.tgz#53fe161111f912ab999ee887a90a0bc52822fd75"
 
-adana-analyze@^0.1.1:
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/adana-analyze/-/adana-analyze-0.1.2.tgz#88093d844e18277c6e27686af0f090210b5af999"
+adana-analyze@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/adana-analyze/-/adana-analyze-0.2.0.tgz#b2650351f41bfccb81863e725fc16c95be366341"
 
 adana-cli@^0.1.1:
   version "0.1.2"
@@ -45,11 +45,12 @@ adana-dump@^0.1.0:
   dependencies:
     mkdirp "^0.5.1"
 
-adana-format-lcov@^0.1.1:
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/adana-format-lcov/-/adana-format-lcov-0.1.2.tgz#b66e67c11fa0c2f5845408917de4bfaac753d085"
+adana-format-istanbul@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/adana-format-istanbul/-/adana-format-istanbul-0.1.1.tgz#2a3ff626fdd0a9290213dba2b103abd44794e217"
   dependencies:
-    adana-analyze "^0.1.1"
+    adana-analyze "^0.2.0"
+    lodash "^4.17.4"
 
 ajv-keywords@^1.0.0:
   version "1.5.1"
@@ -364,6 +365,14 @@ babel-helpers@^6.24.1:
     babel-runtime "^6.22.0"
     babel-template "^6.24.1"
 
+babel-literal-to-ast@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/babel-literal-to-ast/-/babel-literal-to-ast-0.1.2.tgz#f50aa963711935adf19da0d5a4defc827ad5f403"
+  dependencies:
+    babel-traverse "^6.0.20"
+    babel-types "^6.0.19"
+    babylon "^6.0.18"
+
 babel-messages@^6.23.0:
   version "6.23.0"
   resolved "https://registry.yarnpkg.com/babel-messages/-/babel-messages-6.23.0.tgz#f3cdf4703858035b2a2951c6ec5edf6c62f2630e"
@@ -391,6 +400,13 @@ babel-plugin-syntax-object-rest-spread@^6.13.0, babel-plugin-syntax-object-rest-
 babel-plugin-syntax-trailing-function-commas@^6.22.0:
   version "6.22.0"
   resolved "https://registry.yarnpkg.com/babel-plugin-syntax-trailing-function-commas/-/babel-plugin-syntax-trailing-function-commas-6.22.0.tgz#ba0360937f8d06e40180a43fe0d5616fff532cf3"
+
+babel-plugin-transform-adana@^0.5.9:
+  version "0.5.9"
+  resolved "https://registry.yarnpkg.com/babel-plugin-transform-adana/-/babel-plugin-transform-adana-0.5.9.tgz#f23719dee6d13045c7ffe09f56db27e123eacdf4"
+  dependencies:
+    babel-literal-to-ast "^0.1.2"
+    babel-template "^6.0.14"
 
 babel-plugin-transform-async-to-generator@^6.22.0:
   version "6.24.1"
@@ -658,7 +674,7 @@ babel-runtime@^6.18.0, babel-runtime@^6.22.0, babel-runtime@^6.26.0:
     core-js "^2.4.0"
     regenerator-runtime "^0.11.0"
 
-babel-template@^6.24.1, babel-template@^6.26.0:
+babel-template@^6.0.14, babel-template@^6.24.1, babel-template@^6.26.0:
   version "6.26.0"
   resolved "https://registry.yarnpkg.com/babel-template/-/babel-template-6.26.0.tgz#de03e2d16396b069f46dd9fff8521fb1a0e35e02"
   dependencies:
@@ -668,7 +684,7 @@ babel-template@^6.24.1, babel-template@^6.26.0:
     babylon "^6.18.0"
     lodash "^4.17.4"
 
-babel-traverse@^6.23.1, babel-traverse@^6.24.1, babel-traverse@^6.26.0:
+babel-traverse@^6.0.20, babel-traverse@^6.23.1, babel-traverse@^6.24.1, babel-traverse@^6.26.0:
   version "6.26.0"
   resolved "https://registry.yarnpkg.com/babel-traverse/-/babel-traverse-6.26.0.tgz#46a9cbd7edcc62c8e5c064e2d2d8d0f4035766ee"
   dependencies:
@@ -682,7 +698,7 @@ babel-traverse@^6.23.1, babel-traverse@^6.24.1, babel-traverse@^6.26.0:
     invariant "^2.2.2"
     lodash "^4.17.4"
 
-babel-types@^6.19.0, babel-types@^6.23.0, babel-types@^6.24.1, babel-types@^6.26.0:
+babel-types@^6.0.19, babel-types@^6.19.0, babel-types@^6.23.0, babel-types@^6.24.1, babel-types@^6.26.0:
   version "6.26.0"
   resolved "https://registry.yarnpkg.com/babel-types/-/babel-types-6.26.0.tgz#a3b073f94ab49eb6fa55cd65227a334380632497"
   dependencies:
@@ -691,7 +707,7 @@ babel-types@^6.19.0, babel-types@^6.23.0, babel-types@^6.24.1, babel-types@^6.26
     lodash "^4.17.4"
     to-fast-properties "^1.0.3"
 
-babylon@^6.17.0, babylon@^6.18.0:
+babylon@^6.0.18, babylon@^6.17.0, babylon@^6.18.0:
   version "6.18.0"
   resolved "https://registry.yarnpkg.com/babylon/-/babylon-6.18.0.tgz#af2f3b88fa6f5c1e4c634d1a0f8eac4f55b395e3"
 
