@@ -1,7 +1,10 @@
 node_modules
 *.log
 *.map
+*.flow
 build
 /*.js
 /match
+/internal
+/lib
 coverage

@@ -1,26 +1,17 @@
-import { readFileSync } from 'fs';
+// @flow
+import {readFileSync} from 'fs';
+import send from './send';
+import header from './header';
+import use from './use';
 
-// TODO: Change to a generic "send"-style function. Takes a single input
-// url and maps it to single output file. File can be a local file (in which
-// case contents are sent), otherwise can be a url in which case redirect is
-// sent. The `favicon` is then just specific instance of `send`.
-export default function({ favicon } = { }) {
+import type {AppCreator} from './types';
+
+export default (favicon: string): AppCreator => {
   const data = readFileSync(favicon);
-  return function(app) {
-    const { request } = app;
-    return {
-      ...app,
-      request(req, res) {
-        if (req.url === '/favicon.ico') {
-          res.statusCode = 200;
-          // http://stackoverflow.com/questions/13827325
-          res.setHeader('Content-Type', 'image/x-icon');
-          res.setHeader('Content-Length', data.length);
-          res.end(data);
-        } else {
-          request(req, res);
-        }
-      },
-    };
-  };
-}
+  return use(
+    '/favicon.ico',
+    header('Content-Type', 'image/x-icon'),
+    header('Content-Length', data.length.toString()),
+    send(data),
+  );
+};

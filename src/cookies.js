@@ -1,18 +1,14 @@
+// @flow
 import Cookies from 'cookies';
+import request from './request';
+import update from './assign';
+
+import type {AppCreator} from './types';
 
 /**
- * [function description]
- * @returns {[type]} [description]
+ * Attach cookie information to the request object.
+ * @returns {Function} App creator.
  */
-export default function() {
-  return function(app) {
-    const { request } = app;
-    return {
-      ...app,
-      request(req, res) {
-        req.cookies = new Cookies(req, res);
-        request(req, res);
-      },
-    };
-  };
-}
+export default (): AppCreator => request((req, res) => {
+  return update({cookies: new Cookies(req, res)}, null);
+});

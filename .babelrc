@@ -2,7 +2,9 @@
   "env": {
     "test": {
       "plugins": [
-        "transform-adana"
+        ["transform-adana", {
+          "only": "src/**"
+        }]
       ]
     }
   },
@@ -15,6 +17,7 @@
       "targets": {
         "node": 4
       }
-    }]
+    }],
+    "flow"
   ]
 }

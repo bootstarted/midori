@@ -1,5 +1,10 @@
+// @flow
 import headers from 'on-headers';
 import finished from 'on-finished';
+import request from './request';
+import update from './assign';
+
+import type {AppCreator} from './types';
 
 /**
  * Get the current timestamp in seconds.
@@ -16,26 +21,18 @@ function stamp() {
  * middleware chain.
  * @returns {Function} Middleware function.
  */
-export default function() {
-  return function(app) {
-    const { request } = app;
-    return {
-      ...app,
-      request(req, res) {
-        req.timing = { };
-        res.timing = { };
-        req.timing.start = stamp();
-        finished(req, () => {
-          req.timing.end = stamp();
-        });
-        headers(res, () => {
-          res.timing.headers = stamp();
-        });
-        finished(res, () => {
-          res.timing.end = stamp();
-        });
-        request(req, res);
-      },
-    };
-  };
-}
+export default (): AppCreator => request((req, res) => {
+  const reqTiming = {};
+  const resTiming = {};
+  reqTiming.start = stamp();
+  finished(req, () => {
+    reqTiming.end = stamp();
+  });
+  headers(res, () => {
+    resTiming.headers = stamp();
+  });
+  finished(res, () => {
+    resTiming.end = stamp();
+  });
+  return update({timing: reqTiming}, {timing: resTiming});
+});

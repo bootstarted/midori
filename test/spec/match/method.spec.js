@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import {expect} from 'chai';
 import sinon from 'sinon';
 
 import tap from '../../../src/tap';
@@ -10,7 +10,7 @@ describe('method match', () => {
     const yes = sinon.spy();
     const no = sinon.spy();
     const next = sinon.spy();
-    const app = match(method('GET'), tap(yes), tap(no))({ request: next });
+    const app = match(method('GET'), tap(yes), tap(no))({request: next});
 
     app.request({
       method: 'GET',
@@ -25,7 +25,7 @@ describe('method match', () => {
     const yes = sinon.spy();
     const no = sinon.spy();
     const next = sinon.spy();
-    const app = match(method('GET'), tap(yes), tap(no))({ request: next });
+    const app = match(method('GET'), tap(yes), tap(no))({request: next});
 
     app.request({
       method: 'POST',

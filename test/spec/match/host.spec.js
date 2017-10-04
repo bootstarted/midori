@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import {expect} from 'chai';
 import sinon from 'sinon';
 
 import tap from '../../../src/tap';
@@ -10,7 +10,7 @@ describe('host match', () => {
     const yes = sinon.spy();
     const no = sinon.spy();
     const next = sinon.spy();
-    const app = match(host('foo.com'), tap(yes), tap(no))({ request: next });
+    const app = match(host('foo.com'), tap(yes), tap(no))({request: next});
 
     app.request({
       headers: {host: 'foo.com'},
@@ -25,7 +25,7 @@ describe('host match', () => {
     const yes = sinon.spy();
     const no = sinon.spy();
     const next = sinon.spy();
-    const app = match(host(/^foo/), tap(yes), tap(no))({ request: next });
+    const app = match(host(/^foo/), tap(yes), tap(no))({request: next});
 
     app.request({
       headers: {host: 'foo.com'},
@@ -42,7 +42,7 @@ describe('host match', () => {
     const next = sinon.spy();
     const app = match(host(
       (h) => h === 'foo.com'
-    ), tap(yes), tap(no))({ request: next });
+    ), tap(yes), tap(no))({request: next});
 
     app.request({
       headers: {host: 'foo.com'},
@@ -59,7 +59,7 @@ describe('host match', () => {
     const next = sinon.spy();
     const app = match(host([
       (h) => h === 'foo.com',
-    ]), tap(yes), tap(no))({ request: next });
+    ]), tap(yes), tap(no))({request: next});
 
     app.request({
       headers: {host: 'foo.com'},

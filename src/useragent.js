@@ -1,18 +1,15 @@
-import { lookup } from 'useragent';
+// @flow
+import {lookup} from 'useragent';
+import request from './request';
+import update from './assign';
+
+import type {AppCreator} from './types';
 
 /**
- * Attach an `agent` property containing useragent information.
+ * Attach an `agent` property to the request containing useragent information.
  * @returns {Function} Middleware function.
  */
-export default function() {
-  return function(app) {
-    const { request } = app;
-    return {
-      ...app,
-      request(req, res) {
-        req.agent = lookup(req.headers['user-agent']);
-        request(req, res);
-      },
-    };
-  };
-}
+export default (): AppCreator => request((req) => {
+  const agent = lookup(req.headers['user-agent']);
+  return update({agent}, null);
+});

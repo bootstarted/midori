@@ -1,14 +1,15 @@
-import preferred from 'negotiator';
+// @flow
+import Negotiator from 'negotiator';
+import request from './request';
+import update from './assign';
 
-export default (allowed) => (app) => ({
-  ...app,
-  request(req, res) {
-    const types = preferred(req.headers.accept, allowed);
-    if (types.length === 0) {
-      app.error();
-    } else {
-      req.accepts = types;
-      app.request(req, res);
-    }
-  },
-});
+import type {AppCreator} from './types';
+
+export default (allowed: Array<string> = ['*/*']): AppCreator =>
+  request((req) => {
+    const negotiator: Negotiator = req.negotiator || new Negotiator(req);
+    return update({
+      negotiator,
+      type: negotiator.mediaType(allowed),
+    }, null);
+  });

@@ -22,16 +22,16 @@ describe('proxy', () => {
 
   it('shoud call the `web` proxy method on `request`', () => {
     const spy = sinon.spy();
-    const options = { target: 'http://www.google.ca' };
-    const app = proxy(options)({ request: spy });
+    const options = {target: 'http://www.google.ca'};
+    const app = proxy(options)({request: spy});
     app.request(1, 2);
     expect(server.web).to.be.calledWithMatch(1, 2, options);
   });
 
   it('shoud call the `ws` proxy method on `upgrade`', () => {
     const spy = sinon.spy();
-    const options = { target: 'http://www.google.ca' };
-    const app = proxy(options)({ upgrade: spy });
+    const options = {target: 'http://www.google.ca'};
+    const app = proxy(options)({upgrade: spy});
     app.upgrade(1, 2, 3);
     expect(server.ws).to.be.calledWith(1, 2, 3, options);
   });
