@@ -21,7 +21,7 @@ const errorHandler = (err, req, res) => {
     return pure(err);
   }
 
-  if (res.headerSent || !res.socket || res.finished) {
+  if (res.headersSent || !res.socket || res.finished) {
     console.log('Error occured after response already delivered.');
     console.log('This probably indicates a problem elsewhere.');
     console.log(err.stack);
