@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+/* eslint-disable complexity */
 /* global console process */
 
 import pure from '../pure';
@@ -16,15 +17,16 @@ const errorHandler = (err, req, res) => {
   }
 
   if (!req || !res) {
-    console.log('Error not associated with any request.');
-    console.log('You should restart the server.');
+    console.error('Error not associated with any request.');
+    console.error('You should restart the server.');
+    console.error(err);
     return pure(err);
   }
 
-  if (res.headerSent || !res.socket || res.finished) {
-    console.log('Error occured after response already delivered.');
-    console.log('This probably indicates a problem elsewhere.');
-    console.log(err.stack);
+  if (res.headersSent || !res.socket || res.finished) {
+    console.error('Error occured after response already delivered.');
+    console.error('This probably indicates a problem elsewhere.');
+    console.error(err);
     return pure(err);
   }
 

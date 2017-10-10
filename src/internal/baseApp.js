@@ -10,7 +10,7 @@ const baseApp = {
   },
   request(req, res) {
     if (!res.finished) {
-      if (!res.headerSent) {
+      if (!res.headersSent) {
         res.statusCode = 404;
       }
       res.end();

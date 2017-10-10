@@ -24,7 +24,7 @@ describe('internal/baseApp', () => {
   it('should not set the status code if headers have been sent', () => {
     const res = {
       finished: false,
-      headerSent: true,
+      headersSent: true,
       end: sinon.spy(),
       statusCode: 200,
     };
