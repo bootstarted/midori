@@ -45,8 +45,22 @@ describe('internal/baseApp', () => {
   });
 
   it('should provide a default upgrade handler', () => {
-    const socket = {write: sinon.spy()};
+    const socket = {end: sinon.spy()};
     baseApp.upgrade({}, socket);
-    expect(socket.write).to.be.called;
+    expect(socket.end).to.be.called;
+  });
+
+  it('should not call upgrade handler if one listener', () => {
+    const socket = {end: sinon.spy()};
+    baseApp.listenerCount = () => 1;
+    baseApp.upgrade({}, socket);
+    expect(socket.end).to.be.called;
+  });
+
+  it('should not call upgrade handler if other listeners', () => {
+    const socket = {end: sinon.spy()};
+    baseApp.listenerCount = () => 2;
+    baseApp.upgrade({}, socket);
+    expect(socket.end).not.to.be.called;
   });
 });

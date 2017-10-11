@@ -17,9 +17,19 @@ const baseApp = {
     }
   },
   upgrade(req, socket, _head) {
-    socket.write('HTTP/1.1 501 Not Implemented\r\n' +
-               'Connection: Close\r\n' +
-               '\r\n');
+    // There isn't really a "catch-all" like `res.finished` for the `upgrade`
+    // event. So if we're the only listener then we know we can close the
+    // connection. Otherwise we just pray whomever else has attached to the
+    // event knows what they're doing.
+    if (
+      typeof this.listenerCount !== 'function' ||
+      this.listenerCount('upgrade') === 1
+    ) {
+      socket.end('HTTP/1.1 501 Not Implemented\r\n' +
+        'Connection: Close\r\n' +
+        '\r\n'
+      );
+    }
   },
   listening() {
 
