@@ -42,7 +42,7 @@ describe('serve', () => {
     const app = serve({root: __dirname})(nextApp);
     app.request({
       url: '/foo/serve.spec.js',
-      path: '/foo',
+      baseUrl: '/foo',
       headers: {},
       method: 'GET',
     }, stream);

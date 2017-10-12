@@ -119,7 +119,9 @@ describe('path match', () => {
       url: '/foo/hello/baz/qux',
     }, {});
 
-    expect(yes).to.be.calledWithMatch((req) => req.path === '/foo/hello/baz');
+    expect(yes).to.be.calledWithMatch(
+      (req) => req.baseUrl === '/foo/hello/baz'
+    );
     expect(next).to.be.calledOnce;
   });
 

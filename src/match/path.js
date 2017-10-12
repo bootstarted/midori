@@ -23,7 +23,7 @@ export default (_path) => (_app = {}) => {
     matches: combine(app, (req) => {
       const params = regexp.exec(url(req).pathname);
       if (params) {
-        req.path = params[0];
+        req.baseUrl = params[0];
         req.params = req.params || {};
         keys.forEach(({name}, i) => {
           req.params[name] = params[i + 1];

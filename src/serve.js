@@ -29,8 +29,8 @@ type Options = {
 
 const getBase = (req: IncomingMessage): string => {
   const url: URL = parse(req);
-  if (typeof req.path === 'string') {
-    return url.pathname.substr(req.path.length);
+  if (typeof req.baseUrl === 'string') {
+    return url.pathname.substr(req.baseUrl.length);
   }
   return url.pathname;
 };
