@@ -1,6 +1,7 @@
 import {expect} from 'chai';
 import sinon from 'sinon';
 import bl from 'bl';
+import onFinished from 'on-finished';
 
 import compose from '../../src/compose';
 import logging, {
@@ -13,23 +14,29 @@ import send from '../../src/send';
 
 describe('logging', () => {
   it('should do some things', (done) => {
-    const spy = sinon.spy();
+    let log = '';
     const app = compose(
-      logging(dev(spy)),
+      logging(dev((r) => {
+        log = r;
+      })),
       send('test')
     )();
-    const res = bl(() => {
+    const res = bl(() => {});
+    res.statusCode = 200;
+    res.setHeader = () => {};
+    res.writeHead = () => {};
+    res.finished = false;
+    app.request({method: 'GET', url: '/foo'}, res);
+    onFinished(res, () => {
       try {
-        expect(res).not.to.be.null;
+        expect(log).to.contain('GET');
+        expect(log).to.contain('200');
+        expect(log).to.contain('/foo');
         done();
       } catch (err) {
         done(err);
       }
     });
-    res.setHeader = () => {};
-    res.writeHead = () => {};
-    res.finished = false;
-    app.request({}, res);
   });
 
   describe('dev', () => {

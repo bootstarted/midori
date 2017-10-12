@@ -47,7 +47,7 @@ export const dev = (writer: (string) => void) => (
   res: ServerResponse
 ) => {
   const line = [
-    formatStatusCode(req.statusCode),
+    formatStatusCode(res.statusCode),
     chalk.white(req.method),
     req.url,
     formatResponseTime(
