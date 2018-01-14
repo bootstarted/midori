@@ -13,6 +13,7 @@ export {default as logging} from './logging';
 export {default as match} from './match';
 export {default as middleware} from './middleware';
 export {default as use} from './use';
+export {default as pending} from './pending';
 export {default as pure} from './pure';
 export {default as proxy} from './proxy';
 export {default as redirect} from './redirect';
