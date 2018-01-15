@@ -2,22 +2,21 @@
   "env": {
     "test": {
       "plugins": [
-        ["transform-adana", {
-          "only": "src/**"
+        ["babel-plugin-transform-adana", {
+          "only": "src/**/*.js"
         }]
       ]
     }
   },
   "plugins": [
-    "syntax-object-rest-spread",
-    "transform-object-rest-spread"
+    "@babel/plugin-proposal-object-rest-spread",
   ],
   "presets": [
-    ["env", {
+    ["@babel/preset-env", {
       "targets": {
         "node": 4
       }
     }],
-    "flow"
+    "@babel/preset-flow"
   ]
 }
