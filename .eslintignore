@@ -1,5 +1,6 @@
 /*.js
 match/**/*
 internal/**/*
+test/*.js
 lib/**/*
 node_modules

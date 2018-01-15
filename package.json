@@ -7,7 +7,7 @@
   "main": "index.js",
   "scripts": {
     "prepublish": "npm run clean && npm run copy && npm run build && npm run import",
-    "clean": "./node_modules/.bin/rimraf lib ./*.js ./*.map ./*.flow match internal",
+    "clean": "./node_modules/.bin/rimraf lib ./*.js ./*.map ./*.flow match internal test/*.js test/*.map test/*.flow",
     "build": "./node_modules/.bin/babel --copy-files -s -d lib src",
     "copy": "./node_modules/.bin/ncp src lib && ./node_modules/.bin/renamer --regex --find '$' --replace '.flow' 'lib/**/*.js'",
     "import": "./node_modules/.bin/ncp lib .",
@@ -17,6 +17,7 @@
     "flow": "./node_modules/.bin/flow check"
   },
   "dependencies": {
+    "bl": "^1.2.1",
     "chalk": "^2.3.0",
     "compression": "^1.7.1",
     "cookies": "^0.7.1",
