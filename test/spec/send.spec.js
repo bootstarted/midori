@@ -3,43 +3,22 @@ import sinon from 'sinon';
 import bl from 'bl';
 
 import send from '../../src/send';
+import fetch from '../../src/test/fetch';
 
 describe('send', () => {
-  let res;
-  let req;
-  let next;
-
-  beforeEach(() => {
-    req = {};
-    res = {
-      body: 'body',
-      setHeader: sinon.spy(),
-      end: sinon.spy(),
-    };
-    next = {
-      request: sinon.spy(),
-      error: sinon.spy(),
-    };
-  });
-
   it('should not call next request', () => {
-    const app = send('foo')(next);
-    app.request(req, res);
-    expect(next.request).not.to.have.been.called;
-  });
-
-  it('should call res.end with argument', () => {
-    const app = send('test')(next);
-    app.request(req, res);
-    expect(res.end).to.be.calledWith('test');
+    const onNext = sinon.spy();
+    return fetch(send('foo'), '/', {onNext}).then(() => {
+      expect(onNext).not.to.have.been.called;
+    });
   });
 
   it('should call function argument', () => {
     const handler = sinon.spy(() => 'bar');
-    const app = send(handler)(next);
-    app.request(req, res);
-    expect(handler).to.be.calledWith(req);
-    expect(res.end).to.be.calledWith('bar');
+    return fetch(send(handler), '/').then((res) => {
+      expect(handler).to.be.called;
+      expect(res.body).to.equal('bar');
+    });
   });
 
   it('should call next error', () => {
@@ -47,39 +26,32 @@ describe('send', () => {
     const handler = () => {
       throw err;
     };
-    const app = send(handler)(next);
-    app.request(req, res);
-    expect(next.error).to.be.calledWith(err, req, res);
-    expect(res.end).to.not.have.been.called;
+    const onError = sinon.spy();
+    return fetch(send(handler), '/', {onError}).then(() => {
+      expect(onError).to.be.calledWith(err);
+    });
   });
 
   it('should work with buffers', () => {
     const data = new Buffer('hello');
-    const app = send(data)(next);
-    app.request(req, res);
-    expect(res.end).to.be.calledWith(data);
+    return fetch(send(data), '/').then((res) => {
+      expect(res.body).to.equal('hello');
+    });
   });
 
   it('should work with promises', () => {
     const data = new Buffer('hello');
-    const app = send(Promise.resolve(data))(next);
-    return app.request(req, res).then(() => {
-      expect(res.end).to.be.calledWith(data);
+    return fetch(send(Promise.resolve(data)), '/').then((res) => {
+      expect(res.body).to.equal('hello');
     });
   });
 
-  it('should work with streams', (done) => {
+  it('should work with streams', () => {
     const data = new Buffer('hello');
-    const app = send(bl(data))(next);
-    app.request(req, bl((err, result) => {
-      try {
-        expect(err).to.be.null;
-        expect(result).to.be.equal(data);
-        done();
-      } catch (err) {
-        done(err);
-      }
-    }));
+    const app = send(bl(data))();
+    return fetch(app, '/').then((res) => {
+      expect(res.body).to.equal('hello');
+    });
   });
 
   it('should fail for invalid values', () => {

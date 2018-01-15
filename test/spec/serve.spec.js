@@ -1,61 +1,34 @@
 import {expect} from 'chai';
 import sinon from 'sinon';
-import bl from 'bl';
 import {resolve} from 'path';
 
+import compose from '../../src/compose';
 import serve from '../../src/serve';
 import send from '../../src/send';
+import fetch from '../../src/test/fetch';
 
 describe('serve', () => {
-  let getHeader;
-  let setHeader;
-  let stream;
-  let result;
-  let nextApp;
-
-  beforeEach(() => {
-    getHeader = sinon.stub().returns('');
-    setHeader = sinon.stub();
-    result = new Promise((resolve, reject) => {
-      nextApp = {
-        request: () => resolve(null),
-        error: reject,
-      };
-      stream = bl((err, result) => {
-        err ? reject(err) : resolve(result);
-      });
-    });
-    stream.finished = false;
-    stream.getHeader = getHeader;
-    stream.setHeader = setHeader;
-  });
-
   it('should serve some files', () => {
-    const app = serve({root: __dirname})();
-    app.request({url: '/serve.spec.js', headers: {}, method: 'GET'}, stream);
-    return result.then((data) => {
-      expect(data.toString()).to.contain('import bl');
+    const app = serve({root: __dirname});
+    return fetch(app, '/serve.spec.js').then((res) => {
+      expect(res.body).to.contain('import sinon');
     });
   });
 
   it('should work with path prefixes', () => {
-    const app = serve({root: __dirname})(nextApp);
-    app.request({
-      url: '/foo/serve.spec.js',
-      baseUrl: '/foo',
-      headers: {},
-      method: 'GET',
-    }, stream);
-    return result.then((data) => {
-      expect(data.toString()).to.contain('import bl');
+    const app = serve({root: __dirname});
+    return fetch(app, '/foo/serve.spec.js', {baseUrl: '/foo'}).then((res) => {
+      expect(res.body).to.contain('import sinon');
     });
   });
 
   it('should call next handler with `final` set to `false`', () => {
-    const app = serve({root: __dirname, final: false})(nextApp);
-    app.request({url: '/404', headers: {}, method: 'GET'}, stream);
-    return result.then((data) => {
-      expect(data).to.be.null;
+    const app = compose(
+      serve({root: __dirname, final: false}),
+      send('hello')
+    );
+    return fetch(app, '/404').then((res) => {
+      expect(res.body).to.equal('hello');
     });
   });
 
@@ -68,10 +41,9 @@ describe('serve', () => {
         spy(resolve(path));
         return send('');
       },
-    })(nextApp);
-    app.request({url: '/', headers: {}, method: 'GET'}, stream);
-    return result.then((data) => {
-      expect(data.length).to.equal(0);
+    });
+    return fetch(app, '/').then((res) => {
+      expect(res.body.length).to.equal(0);
       expect(spy).to.be.calledOnce;
     });
   });
@@ -80,18 +52,16 @@ describe('serve', () => {
     const app = serve({
       root: __dirname,
       index: false,
-    })(nextApp);
-    app.request({url: '/', headers: {}, method: 'GET'}, stream);
-    return result.then((data) => {
-      expect(data.length).to.equal(0);
-      expect(stream.statusCode).to.equal(204);
+    });
+    return fetch(app, '/').then((res) => {
+      expect(res.body.length).to.equal(0);
+      expect(res.statusCode).to.equal(204);
     });
   });
 
   it('should invoke error handler on errors', () => {
-    const app = serve({root: __dirname})(nextApp);
-    app.request({url: '/404', headers: {}, method: 'GET'}, stream);
-    return result.then(() => {
+    const app = serve({root: __dirname});
+    return fetch(app, '/404').then(() => {
       throw new Error();
     }, (err) => {
       expect(err).to.have.property('statusCode', 404);

@@ -243,64 +243,60 @@ Because `midori` can keep track of its middleware chain it's possible to see the
 
 ## Testing
 
-Since `midori` middleware is incredibly simple, there is nothing fancy required to test it. You can use either HTTP request/response mocks OR a simple HTTP server depending on your needs. Because the request chain is guaranteed to return something you can also use the result of your request handler.
+Since `midori` middleware is incredibly simple, there is nothing fancy required to test it. You can use either HTTP request/response mocks OR a simple HTTP server depending on your needs. Because the request chain is guaranteed to return something you can also use the result of your request handler. `midori` includes a dedicated `fetch()` utility for these purposes.
 
 Using mocks:
 
 ```javascript
-import {request, pure. next} from 'midori';
+import {request, next} from 'midori';
+import {fetch} from 'midori/test';
 
 const baseApp = request((req, res) => {
   res.setHeader('Content-Type', 'test');
   return next;
 });
 
-// Have the last entry in the chain return the response. This way we
-// can pull it out for testing.
-const createApp = compose(
-  baseApp,
-  request((req, res) => pure(res))
-);
-
 it('should set the header', () => {
-  const app = createApp();
-  const fakeRequest = {};
-  const fakeResponse = {
-    headers: {},
-    setHeader(x, y) { this.headers[x.toLowerCase()] = y },
-  };
-  const {headers} = app.request(fakeRequest, fakeResponse);
-  assert(headers['content-type'] === 'test');
+  return fetch(baseApp, '/').then((res) => {
+    assert(res.headers['content-type'] === 'test');
+  });
 });
 ```
 
-Using an HTTP server:
+Using a real HTTP server:
 
 ```javascript
 import {request, pure} from 'midori';
+import fetch from 'node-fetch';
 
 // Reference to HTTP server instance used in each test.
 let server;
+let url;
 
-const createApp = request((req, res) => {
-  res.end();
+const baseApp = request((req, res) => {
+  res.end('Hello world');
   return pure();
 });
 
 beforeEach(done => {
   // Spin up a server and connect your app to it.
-  server = createApp().listen(done);
+  server = createApp().listen(() => {
+    const {port} = server.address();
+    url = `http://localhost:${port}`;
+    done();
+  });
 });
 
 afterEach(done => {
   // Shut down the server after each test.
   server.close(done);
   server = null;
+  url = null;
 });
 
 it('should return a result', () => {
-  return request(server).get('/').then(res => {
-    expect(res).to.have.status(200);
+  return fetch(url).then((res) => {
+    assert(res.statusCode === 200);
   });
 });
 ```
