@@ -35,8 +35,6 @@ const fetch = (
     close: () => {},
     upgrade: () => {},
     listening: () => {},
-    stack: [],
-    matches: () => false,
   };
   const app = typeof appCreator === 'function' ? appCreator(stub) : appCreator;
 
@@ -134,7 +132,10 @@ const fetch = (
       return res;
     },
   };
+  // TODO: FIXME: Any better way of casting through `any`?
+  // $ExpectError
   const realRes: MockedResponse = (res: any);
+  // $ExpectError
   const result = app.request((req: any), realRes);
   return Promise.resolve(result).then(() => {
     if (globalError && !options.onError) {

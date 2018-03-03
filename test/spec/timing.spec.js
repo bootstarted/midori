@@ -18,6 +18,7 @@ describe('timing', () => {
     res.writeHead = () => {};
     res.finished = false;
     app.request(req, res);
+    res.writeHead();
     onFinished(res, () => {
       try {
         expect(res).to.have.property('timing').to.have.property('end');

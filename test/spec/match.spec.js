@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 import sinon from 'sinon';
 
-import compose from '../../src/compose';
+import every from '../../src/match/every';
 import tap from '../../src/tap';
 import match from '../../src/match';
 import host from '../../src/match/host';
@@ -12,7 +12,7 @@ describe('match', () => {
     const no = sinon.spy();
     const next = sinon.spy();
     const app = match(
-      compose(host(/foo/), host(/bar/)),
+      every(host(/foo/), host(/bar/)),
       tap(yes),
       tap(no),
     )({request: next});
@@ -31,7 +31,7 @@ describe('match', () => {
     const no = sinon.spy();
     const next = sinon.spy();
     const app = match(
-      compose(host(/foo/), host(/bar/)),
+      every(host(/foo/), host(/bar/)),
       tap(yes),
       tap(no),
     )({request: next});

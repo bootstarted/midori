@@ -4,6 +4,7 @@ import finished from 'on-finished';
 import tap from './tap';
 
 import type {AppCreator} from './types';
+import type {RequestTiming, ResponseTiming} from './timing';
 import type {IncomingMessage, ServerResponse} from 'http';
 type Logger = (req: IncomingMessage, res: ServerResponse) => void;
 
@@ -14,8 +15,8 @@ export const consoleLogger = (x: string) => {
 };
 
 export const formatResponseTime = (
-  reqTiming: ?Object,
-  resTiming: ?Object,
+  reqTiming: ?RequestTiming,
+  resTiming: ?ResponseTiming,
 ): ?string => {
   if (
     reqTiming &&
@@ -43,8 +44,8 @@ export const formatStatusCode = (statusCode: number) => {
 // Since logging happens at the end of the request cycle, morgan does not need
 // to install any of its own lifecycle hooks; therefore set the immediate flag.
 export const dev = (writer: (string) => void) => (
-  req: IncomingMessage,
-  res: ServerResponse
+  req: IncomingMessage & {timing?: RequestTiming},
+  res: ServerResponse & {timing?: ResponseTiming}
 ) => {
   const line = [
     formatStatusCode(res.statusCode),
@@ -56,11 +57,6 @@ export const dev = (writer: (string) => void) => (
     ),
   ].filter(identity).join(' ');
   writer(line);
-  if (req.error instanceof Error) {
-    const error: Error = req.error;
-    writer(`${chalk.red(error.message)}`);
-    writer(error.stack);
-  }
 };
 
 export default (

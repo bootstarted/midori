@@ -1,26 +1,17 @@
 // @flow
 import baseApp from './internal/baseApp';
-import validateApp from './internal/validateApp';
 
-import {default as accepts} from './match/accepts';
-import {default as header} from './match/header';
-import {default as host} from './match/host';
-import {default as method} from './match/method';
-import {default as path} from './match/path';
-import {default as protocol} from './match/protocol';
-import {default as query} from './match/query';
-
-import type {AppCreator, App} from './types';
+import type {MatchCreator, AppCreator, App} from './types';
 
 /**
  * Branch between two app creators based on some given predicate.
- * @param {Function} match Predicate to match against.
+ * @param {Function} createMatch Predicate to match against.
  * @param {Function} yes App creator for when the predicate is true.
  * @param {Function} no App creator for when the predicate is false.
  * @returns {Function} App creator.
  */
 export default function(
-  match: AppCreator,
+  createMatch: MatchCreator,
   yes: AppCreator,
   no: AppCreator = (x) => x
 ) {
@@ -29,21 +20,14 @@ export default function(
       ...baseApp,
       ...initApp,
     };
-    const app = match(_app);
-    const yesApp = yes(app);
-    const noApp = no(app);
-    validateApp(app);
+    const match = createMatch(_app);
+    const yesApp = yes(match.app);
+    const noApp = no(match.app);
     return {
       ..._app,
-      stack: [..._app.stack, {
-        type: 'MATCH',
-        predicate: app.stack.slice(_app.stack.length),
-        yes: yesApp.stack.slice(app.stack.length),
-        no: noApp.stack.slice(app.stack.length),
-      }],
       request(req, res) {
-        req.stack = this.stack;
-        if (app.matches(req, res)) {
+        const result = match.matches(req, res);
+        if (result) {
           yesApp.request(req, res);
         } else {
           noApp.request(req, res);
@@ -53,12 +37,9 @@ export default function(
   };
 }
 
-export {
-  accepts,
-  header,
-  host,
-  method,
-  path,
-  protocol,
-  query,
-};
+export {default as header} from './match/header';
+export {default as host} from './match/host';
+export {default as method} from './match/method';
+export {default as path} from './match/path';
+export {default as protocol} from './match/protocol';
+export {default as query} from './match/query';

@@ -1,11 +1,9 @@
-/* eslint no-console: 0 */
-import {proxy} from '../src';
+// @flow
+import {proxy, listen} from '../src';
 
-const createApp = proxy({
+const app = proxy({
   target: 'https://www.google.com',
   secure: false,
 });
 
-const app = createApp();
-
-app.listen(8081);
+listen(app, 8081);

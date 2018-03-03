@@ -1,30 +1,33 @@
-import baseApp from '../internal/baseApp';
+// @flow
+import type {Match, Matches, App} from '../types';
 
-export const combine = (app, match) => {
-  if (!app.matches) {
-    return match;
-  }
-  return (req, res) => app.matches(req, res) && match(req, res);
-};
-
-export const create = (match) => (app = {}) => {
+export const create = (matches: Matches) => (app: App): Match => {
   return {
-    ...baseApp,
-    ...app,
-    matches: combine(app, match),
+    app,
+    matches,
   };
 };
 
-export const guard = (hosts) => {
-  if (typeof hosts === 'string') {
+type _Predicate<T> =
+  string |
+  RegExp |
+  (x: T) => boolean;
+
+export type Predicate<T> = _Predicate<T> | Array<_Predicate<T>>;
+
+export const guard = <T>(hosts: Predicate<T>): ((T) => boolean) => {
+  if (hosts instanceof RegExp) {
+    // TODO: FIXME: Flow requires this assignment.
+    const pattern: RegExp = hosts;
+    return (val) => typeof val === 'string' && !!pattern.exec(val);
+  } else if (typeof hosts === 'string') {
     return (val) => val === hosts;
-  } else if (hosts instanceof RegExp) {
-    return (val) => hosts.exec(val);
-  } else if (typeof hosts === 'function') {
-    return hosts;
   } else if (Array.isArray(hosts)) {
     const guards = hosts.map(guard);
     return (val) => guards.some((x) => x(val));
+  } else if (typeof hosts === 'function') {
+    const fn: (x: T) => boolean = hosts;
+    return fn;
   }
   throw new TypeError();
 };

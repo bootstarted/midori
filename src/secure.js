@@ -14,8 +14,8 @@ import type {AppCreator} from './types';
  */
 export default (): AppCreator => compose(
   // Ensure app is served over HTTPS.
-  match(protocol('https'), next, redirect((req) => {
-    return `https://${req.headers.host}${req.url}`;
+  match(protocol('https'), next, request((req) => {
+    return redirect(`https://${req.headers.host}${req.url}`);
   })),
   // Send useful security headers for the browser.
   request((req, res) => {

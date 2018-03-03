@@ -6,6 +6,16 @@ import update from './assign';
 
 import type {AppCreator} from './types';
 
+export type ResponseTiming = {
+  headers?: number,
+  end?: number,
+  start?: number,
+};
+export type RequestTiming = {
+  start?: number,
+  end?: number,
+};
+
 /**
  * Get the current timestamp in seconds.
  * @returns {Number} Timestamp.
@@ -22,8 +32,8 @@ function stamp() {
  * @returns {Function} Middleware function.
  */
 export default (): AppCreator => request((req, res) => {
-  const reqTiming = {};
-  const resTiming = {};
+  const reqTiming: RequestTiming = {};
+  const resTiming: ResponseTiming = {};
   reqTiming.start = stamp();
   finished(req, () => {
     reqTiming.end = stamp();

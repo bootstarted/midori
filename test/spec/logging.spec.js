@@ -39,6 +39,38 @@ describe('logging', () => {
     });
   });
 
+  it('should handle timing', (done) => {
+    let log = '';
+    const app = compose(
+      logging(dev((r) => {
+        log = r;
+      })),
+      send('test')
+    )();
+    const res = bl(() => {});
+    res.timing = {start: 1, end: 2, headers: 1};
+    res.statusCode = 200;
+    res.setHeader = () => {};
+    res.writeHead = () => {};
+    res.finished = false;
+    app.request({
+      method: 'GET',
+      url: '/foo',
+      timing: {start: 1, end: 2},
+    }, res);
+    onFinished(res, () => {
+      try {
+        expect(log).to.contain('GET');
+        expect(log).to.contain('200');
+        expect(log).to.contain('/foo');
+        expect(log).to.contain('ms');
+        done();
+      } catch (err) {
+        done(err);
+      }
+    });
+  });
+
   describe('dev', () => {
     it('should write out the error if it exists', () => {
       const spy = sinon.spy();

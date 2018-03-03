@@ -12,7 +12,7 @@ import type {AppCreator} from './types';
  * @returns {Function} App creator.
  */
 export default (): AppCreator => request((req, res) => {
-  if (!req.socket._handle) {
+  if (req.socket._handle === null || req.socket._handle === undefined) {
     res.statusCode = 502;
     res.setHeader('Connection', 'close');
     res.setHeader('Content-Length', '0');

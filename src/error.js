@@ -1,6 +1,5 @@
 // @flow
 import baseApp from './internal/baseApp';
-import validateApp from './internal/validateApp';
 import handleResult from './internal/handleResult';
 
 import type {App, AppCreator} from './types';
@@ -18,12 +17,11 @@ type ErrorHandler = (
  * app creator.
  * @returns {Function} App creator.
  */
-export default (errorHandler: ErrorHandler) => (_app: ?App): App => {
+export default (errorHandler: ErrorHandler) => (_app: App): App => {
   const app = {
     ...baseApp,
     ..._app,
   };
-  validateApp(app);
   return {
     ...app,
     error: (err, req, res) => {

@@ -1,4 +1,4 @@
-/* eslint no-console: 0 */
+// @flow
 import {
   compose,
   send,
@@ -8,13 +8,15 @@ import {
   timing,
   logging,
   use,
+  listen,
 } from '../src';
 
-const createApp = compose(
+const app = compose(
   id(),
   timing(),
   logging(),
   use('/id', request((req) => {
+    // $ExpectError
     return send(`Request: ${req.id}`);
   })),
   use('/bar', send('Hi from bar')),
@@ -24,6 +26,4 @@ const createApp = compose(
   compose(status(404), send('Hi from elsewhere')),
 );
 
-const app = createApp();
-
-app.listen(8081);
+listen(app, 8081);

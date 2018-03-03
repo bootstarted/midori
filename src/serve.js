@@ -11,20 +11,20 @@ import write from './send';
 import type {AppCreator} from './types';
 import type {IncomingMessage} from 'http';
 type Options = {
-  final: boolean,
-  onDirectory: (directory: string) => AppCreator,
-  acceptRanges: ?boolean,
-  cacheControl: ?boolean,
-  dotfiles: ?('allow' | 'deny' | 'ignore'),
-  end: ?number,
-  etag: ?boolean,
-  extensions: ?Array<string>,
-  immutable: ?boolean,
-  index: ?boolean,
-  lastModified: ?boolean,
-  maxAge: ?(number | string),
+  final?: boolean,
+  onDirectory?: (directory: string) => AppCreator,
+  acceptRanges?: boolean,
+  cacheControl?: boolean,
+  dotfiles?: ('allow' | 'deny' | 'ignore'),
+  end?: number,
+  etag?: boolean,
+  extensions?: Array<string>,
+  immutable?: boolean,
+  index?: boolean,
+  lastModified?: boolean,
+  maxAge?: (number | string),
   root: string,
-  start: ?number,
+  start?: number,
 };
 
 const getBase = (req: IncomingMessage): string => {

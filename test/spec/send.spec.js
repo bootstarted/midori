@@ -13,35 +13,9 @@ describe('send', () => {
     });
   });
 
-  it('should call function argument', () => {
-    const handler = sinon.spy(() => 'bar');
-    return fetch(send(handler), '/').then((res) => {
-      expect(handler).to.be.called;
-      expect(res.body).to.equal('bar');
-    });
-  });
-
-  it('should call next error', () => {
-    const err = new Error();
-    const handler = () => {
-      throw err;
-    };
-    const onError = sinon.spy();
-    return fetch(send(handler), '/', {onError}).then(() => {
-      expect(onError).to.be.calledWith(err);
-    });
-  });
-
   it('should work with buffers', () => {
     const data = new Buffer('hello');
     return fetch(send(data), '/').then((res) => {
-      expect(res.body).to.equal('hello');
-    });
-  });
-
-  it('should work with promises', () => {
-    const data = new Buffer('hello');
-    return fetch(send(Promise.resolve(data)), '/').then((res) => {
       expect(res.body).to.equal('hello');
     });
   });

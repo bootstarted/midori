@@ -32,12 +32,6 @@ describe('internal/baseApp', () => {
     expect(res.statusCode).to.equal(200);
   });
 
-  it('should provide a server listener', (done) => {
-    const server = baseApp.listen(() => {
-      server.close(done);
-    });
-  });
-
   it('should provide a default error handler', () => {
     const err = new Error('test');
     const result = baseApp.error(err);

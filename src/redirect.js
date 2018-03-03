@@ -1,30 +1,36 @@
+// @flow
 import request from './request';
-import pure from './pure';
+import halt from './halt';
 import {format} from 'url';
 
-const normalize2 = (url) => {
+import type {AppCreator} from './types';
+
+type Redirect = {
+  (url: URL): AppCreator;
+  (url: string): AppCreator;
+  (statusCode: number, url: string): AppCreator;
+  (statusCode: number, url: URL): AppCreator;
+}
+
+type Normalize = {
+  statusCode: number,
+  url: string,
+};
+
+const normalize2 = (url: string | URL): string => {
   if (typeof url === 'string') {
     return url;
   } else if (typeof url === 'object') {
     return format(url);
   }
-  throw new TypeError();
+  throw new TypeError(`Invalid url: "${url}"`);
 };
 
-const normalize = (statusCode, url) => {
-  if (typeof url === 'function') {
-    return (req, res) => ({
-      statusCode,
-      url: normalize2(url(req, res)),
-    });
-  } else if ((typeof url === 'string') || (typeof url === 'object')) {
-    const result = normalize2(url);
-    return () => ({
-      statusCode,
-      url: result,
-    });
-  }
-  throw new TypeError();
+const normalize = (statusCode: number, url: string | URL): Normalize => {
+  return {
+    statusCode,
+    url: normalize2(url),
+  };
 };
 
 /**
@@ -33,17 +39,21 @@ const normalize = (statusCode, url) => {
  * @param {String|Object|Function} url The url to redirect to.
  * @returns {Function} App creator.
  */
-export default (...args) => {
-  const get = normalize(
+const redirect:Redirect = (...args): AppCreator => {
+  // TODO: FIXME: How to get flow happy with this?
+  const {url, statusCode} = normalize(
+    // $ExpectError
     args.length > 1 ? args[0] : 302,
+    // $ExpectError
     args.length <= 1 ? args[0] : args[1]
   );
   return request((req, res) => {
-    const {url, statusCode} = get(req, res);
     res.writeHead(statusCode, {
       Location: url,
     });
     res.end();
-    return pure();
+    return halt;
   });
 };
+
+export default redirect;

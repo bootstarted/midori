@@ -145,4 +145,13 @@ describe('path match', () => {
     expect(no).to.not.be.calledOnce;
     expect(next).to.be.calledOnce;
   });
+
+  it('should fail on things that are not paths', () => {
+    expect(() => {
+      path('foo');
+    }).to.throw(TypeError);
+    expect(() => {
+      path('http://www.foo.com');
+    }).to.throw(TypeError);
+  });
 });
