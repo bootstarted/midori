@@ -19,121 +19,16 @@ npm install --save midori
 Test out your first app:
 
 ```javascript
-import {get, send} from 'midori';
+import {get, send, listen} from 'midori';
 
-const createApp = get('/', send('Hello world.'));
-const app = createApp();
+const app = get('/', send('Hello world.'));
 
-app.listen(8081, () => {
+listen(app, 8081, () => {
   console.log('Example `midori` app started.');
 });
 ```
 
 There are plenty of other examples available.
-
-## Overview
-
-At its core a `midori` app is just a plain object that has functions for handling HTTP server events:
-
-```javascript
-const baseApp = {
-  request: (req, res) => {
-    // Handler for httpServer.on('request')
-    // ...
-  },
-  error: (err, req, res) => {
-    // Handler for httpServer.on('error')
-    // ...
-  },
-  // ...
-}
-```
-
-However, the power of `midori` comes from its ability to compose apps together effortlessly, and create complex applications and behaviors out of simple fragments.  The base compositional functionality in `midori` comes from composing app creators – functions that take as input an app object and give as output a new app object.
-
-```javascript
-import {request, next} from 'midori';
-
-const createApp = request((req, res) => {
-  res.statusCode = 200;
-  return next; // Continue to the next item in the chain.
-});
-
-// Takes as input an existing app, returns as output a new app.
-const app = createApp(baseApp);
-```
-
-Because of this pattern apps can be easily chained together using `compose`:
-
-```javascript
-import {compose, request, next, pure} from 'midori';
-
-const createApp = compose(
-  request((req, res) => {
-    res.statusCode = 200;
-    return next; // Continue to the next item in the chain.
-  }),
-  request((req, res) => {
-    res.end(`Hello world.`);
-    return pure(); // Halt processing.
-  }),
-);
-
-const app = createApp();
-```
-
-You can also write your own app creators manually, but it's not recommended because it often comes with pitfalls that you would otherwise avoid by using the built-in functions available to you.
-
-```javascript
-import {compose, request, next, pure} from 'midori';
-
-const createApp = compose(
-  request((req, res) => {
-    res.statusCode = 200;
-    return next; // Continue to the next item in the chain.
-  }),
-  (app) => {
-    // Take the parent app and return a new app with a modified request handler
-    // that calls the parent app.
-    return {
-      ...app,
-      request(req, res) {
-        // You have to handle errors in here and everything else manually.
-        console.log('Hello!');
-        return app.request(req, res);
-      },
-    };
-  },
-);
-
-const app = createApp();
-```
-
-The `request` function is roughly equivalent to a monadic `bind` and you can use it to return new app creators that will create the next app `midori` will run for you. If you wish to halt the chain you can use `pure` to return a static value, or if you wish to use the next app provided to you then you can just pass `next` which is the identity function.
-
-```javascript
-import {get, send, compose} from 'midori';
-
-// This is an app creator;
-const sendGreeting = (name) => send(`Hello ${name}.`);
-
-// You could write something like the following:
-// const app = sendGreeting();
-
-// But instead we will re-use it elsewhere:
-const createApp = compose(
-  get('/hello/:name', request((req, res) => {
-    // You return an app creator from `request` and in that way you can chain
-    // apps together too.
-    return sendGreeting(req.params.name);
-  })),
-  // You can of course still use them as part of all the other functions that
-  // expect app creators as well.
-  get('/test', sendGreeting('World'))
-);
-
-const app = createApp();
-```
 
 ## Routing
 
@@ -161,7 +56,7 @@ import {path, method} from 'midori/match';
 // This is roughly how `get()` works internally.
 const isGetFoo = compose(method('GET'), path('/foo'));
 
-const createApp = compose(
+const app = compose(
   match(isGetFoo, send('Hello from foo')),
 );
 ```
@@ -175,7 +70,7 @@ import {path, host} from 'midori/match';
 const isFoo = path('/foo'); // Match against URL path
 const isLocalhost = host(/localhost/); // Match against `Host` header
 
-const createApp = compose(
+const app = compose(
   match(isFoo, send('Hello from foo'), send('Hello not from foo')),
 );
 ```
@@ -191,7 +86,7 @@ import {send, request} from 'midori';
 
 const getData = () => Promise.resolve(50);
 
-const createApp = request((req, res) => {
+const app = request((req, res) => {
   return getData().then((result) => {
     if (result > 5) {
       return Promise.resolve(send('Yes.'));
@@ -208,7 +103,7 @@ import {request, send} from 'midori';
 
 const getData = () => Promise.resolve(50);
 
-const createApp = request(async (req, res) => {
+const app = request(async (req, res) => {
   const result = await getData();
   if (result > 5) {
     return send('Yes.');
@@ -222,20 +117,19 @@ const createApp = request(async (req, res) => {
 Just as `request` provides a mechanism for dealing with request flow, `error` provides the same for handling errors.
 
 ```javascript
-import {request, error, compose, pure} from 'midori';
+import {request, error, compose, halt} from 'midori';
 
-const createApp = compose(
+const app = compose(
   request((req, res) => {
     // Can also `return Promise.reject();`
     throw new Error('Help!');
   }),
   error((err, req, res) => {
     res.end(`I caught an error.`);
-    return pure();
+    return halt;
   }),
 );
 ```
-
 
 ## Debugging
 
@@ -251,13 +145,13 @@ Using mocks:
 import {request, next} from 'midori';
 import {fetch} from 'midori/test';
 
-const baseApp = request((req, res) => {
+const app = request((req, res) => {
   res.setHeader('Content-Type', 'test');
   return next;
 });
 
 it('should set the header', () => {
-  return fetch(baseApp, '/').then((res) => {
+  return fetch(app, '/').then((res) => {
     assert(res.headers['content-type'] === 'test');
   });
 });
@@ -266,7 +160,7 @@ it('should set the header', () => {
 Using a real HTTP server:
 
 ```javascript
-import {request, pure} from 'midori';
+import {request, halt} from 'midori';
 import fetch from 'node-fetch';
 
 // Reference to HTTP server instance used in each test.
@@ -275,7 +169,7 @@ let url;
 
 const baseApp = request((req, res) => {
   res.end('Hello world');
-  return pure();
+  return halt;
 });
 
 beforeEach(done => {
@@ -308,7 +202,7 @@ You can connect `midori` to a number of other HTTP frameworks (like [express], [
 ```javascript
 import {send} from 'midori';
 
-const createApp = send('Hello world.');
+const app = send('Hello world.');
 ```
 
 ### With `http`
@@ -321,7 +215,8 @@ import {connect} from 'midori';
 
 const server = http.createServer();
 
-connect(createApp(), server).listen(8080);
+connect(app, server);
+server.listen(8080);
 ```
 
 ### With `express`
@@ -336,17 +231,13 @@ Create an `express` app and just `use()` your midori middleware as if it were `e
 
 ```javascript
 import express from 'express';
-import connector from 'midori-express';
+import createMiddleware from 'midori-express';
 import {compose} from 'midori';
 
-const app = express();
-const createMiddleware = compose(
-  connector,
-  createApp,
-);
+const expressApp = express();
 
-app.use(createMiddleware());
-app.listen(8080);
+expressApp.use(createMiddleware(app));
+expressApp.listen(8080);
 ```
 
 ### With `hapi`
@@ -361,17 +252,12 @@ Create a `hapi` app and register your midori middleware as an extension:
 
 ```javascript
 import {Server} from 'hapi';
-import connector from 'midori-hapi';
-import {compose} from 'midori';
+import createExt from 'midori-hapi';
 
 const server = new Server();
-const createExt = compose(
-  connector,
-  createMiddleware,
-);
 
 server.connection({port: 8080});
-server.ext(createExt());
+server.ext(createExt(app));
 server.start();
 ```
 

@@ -1,12 +1,10 @@
-/* eslint no-console: 0 */
-import {request, pure} from '../src';
+// @flow
+import {request, halt, listen} from '../src';
 
-const createApp = request((req, res) => {
+const app = request((req, res) => {
   res.statusCode = 200;
-  res.end(`Hello ${req.id} [${req.locale}]`);
-  return pure();
+  res.end('Hello world.');
+  return halt;
 });
 
-const app = createApp();
-
-app.listen(8081);
+listen(app, 8081);

@@ -44,16 +44,8 @@ describe('redirect', () => {
     });
   });
 
-  it('should set the status code and url for functions', () => {
-    const app = redirect(() => '/foo')(next);
-    app.request(req, res);
-    expect(res.writeHead).to.be.calledWithMatch(302, {
-      Location: '/foo',
-    });
-  });
-
   it('should set the custom status code', () => {
-    const app = redirect(304, () => '/foo')(next);
+    const app = redirect(304, '/foo')(next);
     app.request(req, res);
     expect(res.writeHead).to.be.calledWithMatch(304, {
       Location: '/foo',
@@ -64,11 +56,5 @@ describe('redirect', () => {
     expect(() => {
       redirect(false);
     }).to.throw(TypeError);
-  });
-
-  it('should fail for invalid function results', () => {
-    const app = redirect(() => false)(next);
-    app.request(req, res);
-    expect(next.error).to.be.called;
   });
 });

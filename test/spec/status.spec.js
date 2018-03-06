@@ -28,36 +28,4 @@ describe('status', () => {
     app.request(req, res);
     expect(res.statusCode).to.be.equal(200);
   });
-
-  it('should work with promises', () => {
-    const app = status(Promise.resolve(200))(next);
-    return app.request(req, res).then(() => {
-      expect(res.statusCode).to.be.equal(200);
-    });
-  });
-
-  it('should fail on invalid values', () => {
-    expect(() => {
-      status('foo');
-    }).to.throw(TypeError);
-  });
-
-  it('should call function argument', () => {
-    const handler = sinon.spy(() => 200);
-    const app = status(handler)(next);
-    app.request(req, res);
-    expect(handler).to.be.calledWith(req);
-    expect(res.statusCode).to.be.equal(200);
-  });
-
-  it('should call next error', () => {
-    const err = new Error();
-    const handler = () => {
-      throw err;
-    };
-    const app = status(handler)(next);
-    app.request(req, res);
-    expect(next.error).to.be.calledWith(err, req, res);
-    expect(res.statusCode).to.be.be.undefined;
-  });
 });

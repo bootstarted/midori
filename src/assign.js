@@ -9,7 +9,7 @@ import type {App} from './types';
  * @param {?Object} resV Values to assign to the response.
  * @returns {Function} App creator.
  */
-const assign = (reqV: ?Object, resV: ?Object) => (app: App): App => {
+const assign = (reqV: *, resV: *) => (app: App): App => {
   // We can never truly "replace" req/res since they're instance objects that
   // node provides. For something that was an actual functional programming
   // system we would be creating new objects here instead of assigning them.
@@ -17,7 +17,9 @@ const assign = (reqV: ?Object, resV: ?Object) => (app: App): App => {
     ...app,
     request(req: IncomingMessage, res: ServerResponse) {
       return app.request(
+        // $ExpectError
         Object.assign(req, reqV),
+        // $ExpectError
         Object.assign(res, resV),
       );
     },

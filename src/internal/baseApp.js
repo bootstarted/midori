@@ -1,14 +1,12 @@
-import http from 'http';
+// @flow
 import errorHandler from './errorHandler';
-import connect from '../connect';
 import handleResult from './handleResult';
 
+import type {IncomingMessage, ServerResponse} from 'http';
+import type {Socket} from 'net';
+
 const baseApp = {
-  stack: [{type: 'ROOT'}],
-  listen(...args) {
-    return connect(this, http.createServer()).listen(...args);
-  },
-  request(req, res) {
+  request(req: IncomingMessage, res: ServerResponse) {
     if (!res.finished) {
       if (!res.headersSent) {
         res.statusCode = 404;
@@ -16,7 +14,7 @@ const baseApp = {
       res.end();
     }
   },
-  upgrade(req, socket, _head) {
+  upgrade(req: IncomingMessage, socket: Socket, _head: *) {
     // There isn't really a "catch-all" like `res.finished` for the `upgrade`
     // event. So if we're the only listener then we know we can close the
     // connection. Otherwise we just pray whomever else has attached to the
@@ -37,7 +35,7 @@ const baseApp = {
   close() {
 
   },
-  error(err, req, res) {
+  error(err: Error, req: IncomingMessage, res: ServerResponse) {
     return handleResult(errorHandler(err, req, res), this, req, res);
   },
 };

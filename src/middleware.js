@@ -7,22 +7,23 @@ import next from './next';
 import type {IncomingMessage, ServerResponse} from 'http';
 import type {AppCreator} from './types';
 
-type Callback = (err: ?Error) => any;
+type Callback = (err: ?Error) => void;
 type BasicHandler = (
   req: IncomingMessage,
   res: ServerResponse,
-) => any;
+) => void;
 type CallbackHandler = (
   req: IncomingMessage,
   res: ServerResponse,
   next: Callback,
-) => any
+) => void
 type ErrorHandler = (
   err: Error,
   req: IncomingMessage,
   res: ServerResponse,
   next: Callback,
-) => any;
+) => void;
+type Handler = BasicHandler & CallbackHandler & ErrorHandler;
 
 const handleBasic = (handler: BasicHandler) => {
   return request((req: IncomingMessage, res: ServerResponse) => {
@@ -62,7 +63,7 @@ const handleError = (handler: ErrorHandler) => {
  * @param {Function} handler Express-style middleware.
  * @returns {Function} Result.
  */
-export default (handler: Function): AppCreator => {
+export default (handler: Handler): AppCreator => {
   if (handler.length === 2) {
     return handleBasic((handler: BasicHandler));
   } else if (handler.length === 3) {

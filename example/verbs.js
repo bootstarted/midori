@@ -1,12 +1,10 @@
-/* eslint no-console: 0 */
-import {get, post, send, compose} from '../src';
+// @flow
+import {get, post, send, compose, listen} from '../src';
 
-const createApp = compose(
+const app = compose(
   get('/foo', send('GET /foo')),
   post('/foo', send('POST /foo')),
   get('/bar', send('GET /bar'))
 );
 
-const app = createApp();
-
-app.listen(8081);
+listen(app, 8081);

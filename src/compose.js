@@ -10,7 +10,7 @@
  * from right to left. For example, compose(f, g, h) is identical to doing
  * (...args) => f(g(h(...args))).
  */
-const compose = (...funcs: Array<Function>): Function => {
+const compose = (...funcs: Array<*>): * => {
   if (funcs.length === 0) {
     return (arg) => arg;
   }
@@ -22,4 +22,6 @@ const compose = (...funcs: Array<Function>): Function => {
   return funcs.reduce((a, b) => (...args) => a(b(...args)));
 };
 
+// TODO: FIXME: Any way to do this without casting through `any`?
+// $ExpectError
 export default ((compose: any): $Compose);

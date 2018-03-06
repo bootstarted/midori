@@ -105,13 +105,20 @@ describe('test/fetch', () => {
       app.close();
       app.upgrade();
       app.listening();
-      app.matches();
       return app;
     }, '/');
   });
   it('should support `onNext`', () => {
     const spy = sinon.spy();
     return fetch(next, '/', {onNext: spy}).then(() => {
+      expect(spy).to.be.called;
+    });
+  });
+  it('should support `onError`', () => {
+    const spy = sinon.spy();
+    return fetch(request(() => {
+      throw new Error();
+    }), '/', {onError: spy}).then(() => {
       expect(spy).to.be.called;
     });
   });

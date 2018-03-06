@@ -1,40 +1,42 @@
 // @flow
 import request from './request';
-import pure from './pure';
+import halt from './halt';
 
-import type {IncomingMessage, ServerResponse} from 'http';
 import {Readable} from 'stream';
 
 type Body = string |
   Buffer |
-  (req: IncomingMessage, res: ServerResponse) => Body |
-  Promise<Body> |
   Readable;
+
+const sendBinary = (body: string | Buffer) => {
+  return request((req, res) => {
+    res.setHeader('Content-Length', body.length.toString());
+    res.end(body);
+    return halt;
+  });
+};
+
+export const sendStream = (body: Readable) => {
+  return request((req, res) => {
+    body.pipe(res);
+    return halt;
+  });
+};
 
 /**
  * Send content to the client.
- * @param {String|Buffer|Function|Promise|Readable} body Data to send.
+ * @param {String|Buffer|Readable} body Data to send.
  * @returns {Function} App creator.
  */
 const send = (body: Body) => {
   if (typeof body === 'string' || Buffer.isBuffer(body)) {
-    return request((req, res) => {
-      res.setHeader('Content-Length', body.length.toString());
-      res.end(body);
-      return pure(null);
-    });
-  } else if (typeof body === 'function') {
-    const b:((req: IncomingMessage, res: ServerResponse) => Body) = (body: any);
-    return request((req, res) => send(b(req, res)));
-  } else if (body && typeof body.then === 'function') {
-    const result = body.then((result) => send(result));
-    return request(() => result);
+    // TODO: FIXME: Why does flow hate this?
+    // $ExpectError
+    return sendBinary(body);
   } else if (body && typeof body.pipe === 'function') {
-    const b:Readable = (body: any);
-    return request((req, res) => {
-      b.pipe(res);
-      return pure(null);
-    });
+    // TODO: FIXME: Why does flow hate this?
+    // $ExpectError
+    return sendStream(body);
   }
   throw new TypeError('Invalid value given to `send`.');
 };

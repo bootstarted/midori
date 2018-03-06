@@ -1,5 +1,5 @@
-/* eslint no-console: 0 */
-import {send, use, compose, request, pending} from '../src';
+// @flow
+import {send, use, compose, request, pending, listen} from '../src';
 import {parse} from 'qs';
 import url from 'parseurl';
 
@@ -7,7 +7,7 @@ const waits = [];
 
 // In one browser tab go to /wait
 // In another browser tab go to /unwait?name=Fred
-const createApp = compose(
+const app = compose(
   use('/wait', pending((fn) => {
     waits.push(fn);
   })),
@@ -22,6 +22,4 @@ const createApp = compose(
   })),
 );
 
-const app = createApp();
-
-app.listen(8081);
+listen(app, 8081);

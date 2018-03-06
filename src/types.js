@@ -1,11 +1,8 @@
 // @flow
-/* eslint-disable no-use-before-define */
 import type {IncomingMessage, ServerResponse} from 'http';
 import type {Socket} from 'net';
 
 export type App = {
-  stack: Array<Object>,
-  matches: (req: IncomingMessage, res: ServerResponse) => boolean,
   request: (req: IncomingMessage, res: ServerResponse) => mixed,
   error: (err: Error, req: IncomingMessage, res: ServerResponse) => mixed,
   close: () => void,
@@ -13,4 +10,12 @@ export type App = {
   upgrade: (req: IncomingMessage, socket: Socket, head: Buffer) => void,
 };
 
+export type Matches = (req: IncomingMessage, req: ServerResponse) => boolean;
+
+export type Match = {
+  matches: Matches,
+  app: App,
+};
+
 export type AppCreator = (app: App) => App;
+export type MatchCreator = (app: App) => Match;

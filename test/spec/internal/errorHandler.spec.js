@@ -9,7 +9,7 @@ describe('internal/errorHandler', () => {
 
   beforeEach(() => {
     sandbox = sinon.sandbox.create();
-    res = {socket: true, setHeader: sinon.spy(), end: sinon.spy()};
+    res = {socket: {}, setHeader: sinon.spy(), end: sinon.spy()};
   });
 
   afterEach(() => {

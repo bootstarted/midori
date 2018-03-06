@@ -1,12 +1,36 @@
+// @flow
 /* eslint-disable no-console */
-/* eslint-disable complexity */
 /* global console process */
 
 import pure from '../pure';
 import {isProduction} from './environment';
 
-const errorHandler = (err, req, res) => {
-  const status = err.statusCode || err.status || 500;
+const getStatusCode = (err: Error): number => {
+  if (typeof err.statusCode === 'number') {
+    return err.statusCode;
+  } else if (typeof err.status === 'number') {
+    return err.status;
+  }
+  return 500;
+};
+
+type BaseRequest = {
+
+};
+type BaseResponse = {
+  headersSent: boolean,
+  finished: boolean,
+  statusCode: number,
+  +setHeader: (string, string) => void,
+  +end: (string) => void,
+}
+
+const errorHandler = <Req: BaseRequest, Res: BaseResponse>(
+  err: Error,
+  req: Req,
+  res: Res,
+) => {
+  const status: number = getStatusCode(err);
 
   let message = '';
   let stack = '';
@@ -23,14 +47,12 @@ const errorHandler = (err, req, res) => {
     return pure(err);
   }
 
-  if (res.headersSent || !res.socket || res.finished) {
+  if (res.headersSent || (typeof res.socket !== 'object') || res.finished) {
     console.error('Error occured after response already delivered.');
     console.error('This probably indicates a problem elsewhere.');
     console.error(err);
     return pure(err);
   }
-
-  req.error = err;
 
   const body = `
 <!DOCTYPE html>
@@ -44,11 +66,6 @@ body{font-family: sans-serif; color: #333}
 <body>
 <h1>Error ${status}</h1>
 ${message}${stack}
-<br/>
-<br/>
-<pre>
-${JSON.stringify(req.stack, null, 2)}
-</pre>
 </body>
 </html>`;
 

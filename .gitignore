@@ -1,7 +1,7 @@
 node_modules
 *.log
 *.map
-*.flow
+/*.flow
 build
 /*.js
 /match

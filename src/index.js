@@ -1,3 +1,5 @@
+// @flow
+
 // Connector.
 export {default as connect} from './connect';
 
@@ -6,8 +8,10 @@ export {default as cookies} from './cookies';
 export {default as compression} from './compression';
 export {default as error} from './error';
 export {default as graceful} from './graceful';
+export {default as halt} from './halt';
 export {default as header} from './header';
 export {default as id} from './id';
+export {default as listen} from './listen';
 export {default as locale} from './locale';
 export {default as logging} from './logging';
 export {default as match} from './match';

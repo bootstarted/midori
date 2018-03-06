@@ -1,13 +1,11 @@
-/* eslint no-console: 0 */
-import {request, send} from '../src';
+// @flow
+import {request, send, listen} from '../src';
 
 const a = send('Hello');
 const b = send('World');
 
-const createApp = request(() => {
+const app = request(() => {
   return (Math.random() > 0.5) ? a : b;
 });
 
-const app = createApp();
-
-app.listen(8081);
+listen(app, 8081);
