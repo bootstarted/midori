@@ -3,12 +3,7 @@ import Proxy from 'http-proxy';
 import baseApp from './internal/baseApp';
 
 import type {App, AppCreator} from './types';
-
-/**
-TODO: Handle these events:
-proxy.on('proxyReq', (proxyReq, req, res, options) => { });
-proxy.on('proxyRes', (proxyRes, req, res) => { });
-*/
+import type {ClientRequest, IncomingMessage} from 'http';
 
 type Options = {
   target?: string | {host: string, port: number},
@@ -31,10 +26,18 @@ type Options = {
   cookieDomainRewrite?: false | string | {[string]: string},
   headers?: {[string]: string},
   proxyTimeout?: number,
-}
+  onRequest?: (ClientRequest) => void,
+  onResponse?: (IncomingMessage) => void,
+};
 
 export default function(options: Options): AppCreator {
   const proxy = Proxy.createProxy();
+  if (options.onRequest) {
+    proxy.on('proxyReq', options.onRequest);
+  }
+  if (options.onResponse) {
+    proxy.on('proxyRes', options.onResponse);
+  }
   return (_app: App) => {
     const app = {
       ...baseApp,

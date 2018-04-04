@@ -13,6 +13,7 @@ describe('proxy', () => {
     sandbox.stub(Proxy, 'createProxy').returns(server = {
       ws: sandbox.stub(),
       web: sandbox.stub(),
+      on: sandbox.stub(),
     });
   });
 
@@ -34,5 +35,17 @@ describe('proxy', () => {
     const app = proxy(options)({upgrade: spy});
     app.upgrade(1, 2, 3);
     expect(server.ws).to.be.calledWith(1, 2, 3, options);
+  });
+
+  it('shoud hook `proxyReq`', () => {
+    const options = {onRequest: 5};
+    proxy(options);
+    expect(server.on).to.be.calledWith('proxyReq', 5);
+  });
+
+  it('shoud hook `proxyRes`', () => {
+    const options = {onResponse: 5};
+    proxy(options);
+    expect(server.on).to.be.calledWith('proxyRes', 5);
   });
 });
