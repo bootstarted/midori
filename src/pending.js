@@ -6,8 +6,9 @@ import send from './send';
 
 import type {AppCreator} from './types';
 
+type Disposer = () => void;
 type TriggerCallback = (a: AppCreator) => void;
-type Trigger = (c: TriggerCallback) => void;
+type Trigger = (c: TriggerCallback) => void | Disposer;
 type Options = {
   timeout: number,
   onTimeout: AppCreator,
@@ -44,15 +45,25 @@ const pending = (
     timeout = defaultOptions.timeout,
     onTimeout = defaultOptions.onTimeout,
   } = options;
-  return request(() => new Promise((resolve) => {
+  return request((req) => new Promise((resolve) => {
+    let disposer = null;
+    const dispose = () => {
+      if (disposer) {
+        disposer();
+        disposer = null;
+      }
+    };
     const timer = setTimeout(() => {
+      dispose();
       resolve(onTimeout);
     }, timeout);
     const fn = (newApp) => {
       clearTimeout(timer);
+      dispose();
       resolve(newApp);
     };
-    trigger(fn);
+    disposer = trigger(fn);
+    req.on('close', dispose);
   }));
 };
 
