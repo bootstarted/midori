@@ -44,4 +44,13 @@ describe('http', () => {
     expect(spy1).to.be.calledOnce;
     expect(spy2).not.be.called;
   });
+
+  it('should invoke `listening` if already listening', () => {
+    const spy1 = sinon.spy();
+    const app = {listening: spy1};
+    const server = new EventEmitter();
+    server.listening = true;
+    connect(app, server);
+    expect(spy1).to.be.calledOnce;
+  });
 });
