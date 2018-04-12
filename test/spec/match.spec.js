@@ -44,4 +44,40 @@ describe('match', () => {
     expect(yes).to.not.be.calledOnce;
     expect(next).to.be.calledOnce;
   });
+
+  it('should handle `yes` branch of upgrade', () => {
+    const yes = sinon.spy();
+    const no = sinon.spy();
+    const next = sinon.spy();
+    const app = match(
+      host(/foo/),
+      () => ({upgrade: yes}),
+      () => ({upgrade: no}),
+    )({upgrade: next});
+
+    app.upgrade({
+      headers: {host: 'foo.com'},
+    });
+
+    expect(yes).to.be.calledOnce;
+    expect(no).to.not.be.calledOnce;
+  });
+
+  it('should handle `no` branch of upgrade', () => {
+    const yes = sinon.spy();
+    const no = sinon.spy();
+    const next = sinon.spy();
+    const app = match(
+      host(/foo/),
+      () => ({upgrade: yes}),
+      () => ({upgrade: no}),
+    )({upgrade: next});
+
+    app.upgrade({
+      headers: {host: 'bar.com'},
+    });
+
+    expect(no).to.be.calledOnce;
+    expect(yes).to.not.be.calledOnce;
+  });
 });
