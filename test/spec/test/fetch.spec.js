@@ -99,6 +99,26 @@ describe('test/fetch', () => {
     });
   });
 
+  it('should support req `once`', () => {
+    return fetch(request((req) => {
+      const result = new Promise((resolve) => {
+        req.once('foo', () => resolve(next));
+      });
+      req.body.emit('foo');
+      return result;
+    }), '/');
+  });
+
+  it('should support req `on`', () => {
+    return fetch(request((req) => {
+      const result = new Promise((resolve) => {
+        req.on('foo', () => resolve(next));
+      });
+      req.body.emit('foo');
+      return result;
+    }), '/');
+  });
+
   // TODO: Make this better.
   it('should provide default app handlers', () => {
     fetch((app) => {
