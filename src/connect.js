@@ -28,5 +28,8 @@ export default function connect(app: App | AppCreator, server: Server) {
       server.on(evt, app[evt]);
     }
   });
+  if (server.listening === true) {
+    app.listening.call(server, server);
+  }
   return server;
 }

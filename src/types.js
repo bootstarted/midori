@@ -1,12 +1,12 @@
 // @flow
-import type {IncomingMessage, ServerResponse} from 'http';
+import type {IncomingMessage, ServerResponse, Server} from 'http';
 import type {Socket} from 'net';
 
 export type App = {
   request: (req: IncomingMessage, res: ServerResponse) => mixed,
   error: (err: Error, req: IncomingMessage, res: ServerResponse) => mixed,
   close: () => void,
-  listening: () => void,
+  listening: (server: Server) => void,
   upgrade: (req: IncomingMessage, socket: Socket, head: Buffer) => void,
 };
 
