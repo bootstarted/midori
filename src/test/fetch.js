@@ -57,7 +57,22 @@ const fetch = (
       ensureReqBody();
       return reqBodyStream.pipe(...args);
     },
+    on: (...args) => {
+      ensureReqBody();
+      reqBodyStream.on(...args);
+      return req;
+    },
+    once: (...args) => {
+      ensureReqBody();
+      reqBodyStream.on(...args);
+      return req;
+    },
     ...options,
+    // flowlint-next-line unsafe-getters-setters:off
+    get body() {
+      ensureReqBody();
+      return reqBodyStream;
+    },
   };
 
   let body;
