@@ -29,7 +29,7 @@ export default function connect(app: App | AppCreator, server: Server) {
     }
   });
   if (server.listening === true) {
-    app.listening.call(server);
+    app.listening.call(server, server);
   }
   return server;
 }
