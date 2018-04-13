@@ -25,8 +25,16 @@ export default function(
     const noApp = no(match.app);
     return {
       ..._app,
+      upgrade(req, socket, head) {
+        const result = match.matches(req);
+        if (result) {
+          yesApp.upgrade(req, socket, head);
+        } else {
+          noApp.upgrade(req, socket, head);
+        }
+      },
       request(req, res) {
-        const result = match.matches(req, res);
+        const result = match.matches(req);
         if (result) {
           yesApp.request(req, res);
         } else {

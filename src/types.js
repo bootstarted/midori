@@ -10,7 +10,7 @@ export type App = {
   upgrade: (req: IncomingMessage, socket: Socket, head: Buffer) => void,
 };
 
-export type Matches = (req: IncomingMessage, req: ServerResponse) => boolean;
+export type Matches = (req: IncomingMessage) => boolean;
 
 export type Match = {
   matches: Matches,
