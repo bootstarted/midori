@@ -1,8 +1,6 @@
 // @flow
 import {get, serve, compose, listen} from '../src';
 
-const app = compose(
-  get('/foo', serve({root: __dirname})),
-);
+const app = compose(get('/foo', serve({root: __dirname})));
 
-listen(app, 8081);
+listen(app, 8080);

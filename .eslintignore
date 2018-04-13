@@ -4,4 +4,6 @@ match/**/*
 internal/**/*
 test/*.js
 lib/**/*
+/web
 node_modules
+/coverage

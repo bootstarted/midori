@@ -5,7 +5,7 @@ const {compose, use, send, header} = require('../../');
 
 const createApp = compose(
   use('/keep-alive', send('Hello World!')),
-  use('/', header('Connection', 'close'), send('Hello World!'))
+  use('/', header('Connection', 'close'), send('Hello World!')),
 );
 
 const app = createApp();

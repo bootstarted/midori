@@ -28,52 +28,16 @@ listen(app, 8081, () => {
 });
 ```
 
-There are plenty of other examples available.
-
-## Routing
-
-The standard way of doing request dependent routing is by using `match`. Most frameworks allow you to only match against the request path and method, but `midori` makes no such compromises and you can use all kinds of predicates to determine the control flow of your application.
-
 ```javascript
-import {match, send, compose} from 'midori';
-import {path, host} from 'midori/match';
+import {apply, query, url, send} from 'midori';
 
-const isFoo = path('/foo'); // Match against URL path
-const isLocalhost = host(/localhost/); // Match against `Host` header
-
-const createApp = compose(
-  match(isFoo, send('Hello from foo')),
-  match(isLocalhost, send('You accessed from localhost')),
-);
+const app = apply(query, url, (query, {pathname}) => {
+  return send(`${pathname} - got ${query.foo}`);
+})
 ```
 
-You can also create match conjunctions using `compose` (i.e. all predicates must be true for the match to succeed).
+There are plenty of other examples available in the [./examples] folder.
 
-```javascript
-import {match, send, compose} from 'midori';
-import {path, method} from 'midori/match';
-
-// This is roughly how `get()` works internally.
-const isGetFoo = compose(method('GET'), path('/foo'));
-
-const app = compose(
-  match(isGetFoo, send('Hello from foo')),
-);
-```
-
-You can also take action based on when the match fails:
-
-```javascript
-import {match, send, compose} from 'midori';
-import {path, host} from 'midori/match';
-
-const isFoo = path('/foo'); // Match against URL path
-const isLocalhost = host(/localhost/); // Match against `Host` header
-
-const app = compose(
-  match(isFoo, send('Hello from foo'), send('Hello not from foo')),
-);
-```
 
 ## Async
 
@@ -86,7 +50,7 @@ import {send, request} from 'midori';
 
 const getData = () => Promise.resolve(50);
 
-const app = request((req, res) => {
+const app = request(() => {
   return getData().then((result) => {
     if (result > 5) {
       return Promise.resolve(send('Yes.'));
@@ -103,7 +67,7 @@ import {request, send} from 'midori';
 
 const getData = () => Promise.resolve(50);
 
-const app = request(async (req, res) => {
+const app = request(async () => {
   const result = await getData();
   if (result > 5) {
     return send('Yes.');
@@ -120,32 +84,45 @@ Just as `request` provides a mechanism for dealing with request flow, `error` pr
 import {request, error, compose, halt} from 'midori';
 
 const app = compose(
-  request((req, res) => {
+  request(() => {
     // Can also `return Promise.reject();`
     throw new Error('Help!');
   }),
-  error((err, req, res) => {
-    res.end(`I caught an error.`);
+  error((err) => {
+    console.log(`I caught an error.`);
     return halt;
   }),
 );
 ```
 
-## Debugging
+If you need access to the request/response during error handling you can use those functions:
 
-Because `midori` can keep track of its middleware chain it's possible to see the exact sequence of steps in your request handling pipeline that brought you to where ended up – this is often many times more useful than a stack trace because of how async is handled in JavaScript.
+```javascript
+import {request, error, compose} from 'midori';
+
+const app = compose(
+  request(() => {
+    // Can also `return Promise.reject();`
+    throw new Error('Help!');
+  }),
+  error((err) => {
+    return request((req) => {
+      console.log('There was an error at:', req.url);
+      throw err;
+    });
+  }),
+);
+```
 
 ## Testing
 
-Since `midori` middleware is incredibly simple, there is nothing fancy required to test it. You can use either HTTP request/response mocks OR a simple HTTP server depending on your needs. Because the request chain is guaranteed to return something you can also use the result of your request handler. `midori` includes a dedicated `fetch()` utility for these purposes.
-
-Using mocks:
+`midori` includes a dedicated `fetch()` utility for testing purposes:
 
 ```javascript
-import {request, next} from 'midori';
+import {response, next} from 'midori';
 import {fetch} from 'midori/test';
 
-const app = request((req, res) => {
+const app = response((res) => {
   res.setHeader('Content-Type', 'test');
   return next;
 });
@@ -157,24 +134,24 @@ it('should set the header', () => {
 });
 ```
 
-Using a real HTTP server:
+But you can use a real HTTP server too:
 
 ```javascript
-import {request, halt} from 'midori';
+import {response, listen, halt} from 'midori';
 import fetch from 'node-fetch';
 
 // Reference to HTTP server instance used in each test.
 let server;
 let url;
 
-const baseApp = request((req, res) => {
+const app = response((res) => {
   res.end('Hello world');
   return halt;
 });
 
 beforeEach(done => {
   // Spin up a server and connect your app to it.
-  server = createApp().listen(() => {
+  server = listen(app, () => {
     const {port} = server.address();
     url = `http://localhost:${port}`;
     done();
@@ -195,9 +172,56 @@ it('should return a result', () => {
 });
 ```
 
-## Connectors
+## Advanced
 
-You can connect `midori` to a number of other HTTP frameworks (like [express], [hapi], or none at all). The middleware creator below is used in all examples:
+### Routing
+
+The standard way of doing request dependent routing is by using `match`. Most frameworks allow you to only match against the request path and method, but `midori` makes no such compromises and you can use all kinds of predicates to determine the control flow of your application.
+
+```javascript
+import {match, send, compose} from 'midori';
+import {path, host} from 'midori/match';
+
+const isFoo = path('/foo'); // Match against URL path
+const isLocalhost = host(/localhost/); // Match against `Host` header
+
+const createApp = compose(
+  match(isFoo, send('Hello from foo')),
+  match(isLocalhost, send('You accessed from localhost')),
+);
+```
+
+You can also create match conjunctions using `every` (i.e. all predicates must be true for the match to succeed).
+
+```javascript
+import {match, send, compose} from 'midori';
+import {path, method, every} from 'midori/match';
+
+// This is roughly how `get()` works internally.
+const isGetFoo = every(method('GET'), path('/foo'));
+
+const app = compose(
+  match(isGetFoo, send('Hello from foo')),
+);
+```
+
+You can also take action based on when the match fails:
+
+```javascript
+import {match, send, compose} from 'midori';
+import {path, host} from 'midori/match';
+
+const isFoo = path('/foo'); // Match against URL path
+const isLocalhost = host(/localhost/); // Match against `Host` header
+
+const app = compose(
+  match(isFoo, send('Hello from foo'), send('Hello not from foo')),
+);
+```
+
+### Connectors
+
+You can connect `midori` to a number of other HTTP frameworks (like [express], [hapi]).
 
 ```javascript
 import {send} from 'midori';
@@ -205,21 +229,7 @@ import {send} from 'midori';
 const app = send('Hello world.');
 ```
 
-### With `http`
-
-Support for node's `http` server comes in the box.
-
-```javascript
-import http from 'http';
-import {connect} from 'midori';
-
-const server = http.createServer();
-
-connect(app, server);
-server.listen(8080);
-```
-
-### With `express`
+#### With `express`
 
 Install dependencies:
 
@@ -240,7 +250,7 @@ expressApp.use(createMiddleware(app));
 expressApp.listen(8080);
 ```
 
-### With `hapi`
+#### With `hapi`
 
 Install dependencies:
 

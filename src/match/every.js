@@ -1,9 +1,9 @@
 // @flow
-import type {Match, MatchCreator, App} from '../types';
+import type {Match, MatchCreator} from '../types';
 
-const every = (
-  ...matches: Array<MatchCreator>
-): MatchCreator => (app: App): Match => {
+const every = (...matches: Array<MatchCreator>): MatchCreator => (
+  app,
+): Match => {
   let nextApp = app;
   const allMatches = [];
   matches.forEach((createMatch) => {

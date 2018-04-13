@@ -4,7 +4,11 @@ import {parse} from 'qs';
 import {create} from './util';
 
 type Predicate =
-  {[string]: Predicate} | Array<Predicate> | string | number | boolean;
+  | {[string]: Predicate}
+  | Array<Predicate>
+  | string
+  | number
+  | boolean;
 
 const isMatch = (pred: Predicate, obj: *) => {
   if (Array.isArray(obj)) {
@@ -21,6 +25,5 @@ const isMatch = (pred: Predicate, obj: *) => {
   return pred === obj;
 };
 
-export default (query: Predicate) => create((req) => (
-  isMatch(query, parse(url(req).query))
-));
+export default (query: Predicate) =>
+  create((req) => isMatch(query, parse(url(req).search)));

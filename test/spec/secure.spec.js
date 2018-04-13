@@ -1,29 +1,23 @@
 import {expect} from 'chai';
-import sinon from 'sinon';
 
 import secure from '../../src/secure';
+import fetch from '../../src/test/fetch';
 
-describe('secure', () => {
+describe('/secure', () => {
   it('should enable strict transport security', () => {
-    const spy = sinon.spy();
-    const app = secure()({request: spy});
-    app.request({headers: {}, connection: {encrypted: true}}, {setHeader: spy});
-    expect(spy).to.be.calledWith('Strict-Transport-Security');
+    return fetch(secure(), '/', {encrypted: true}).then((res) => {
+      expect(res.getHeader('Strict-Transport-Security')).to.match(/max-age=/);
+    });
   });
 
   it('should redirect to HTTPS', () => {
-    const spy = sinon.spy();
-    const app = secure()({request: spy});
-    app.request({
-      url: '/foo',
+    return fetch(secure(), '/', {
+      encrypted: false,
       headers: {
         host: 'foo.com',
       },
-      connection: {encrypted: false},
-    }, {
-      writeHead: spy,
-      end: () => {},
+    }).then((res) => {
+      expect(res.getHeader('Location')).to.equal('https://foo.com/');
     });
-    expect(spy).to.be.calledWith(302, {Location: 'https://foo.com/foo'});
   });
 });

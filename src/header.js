@@ -1,17 +1,17 @@
 // @flow
 import next from './next';
-import request from './request';
+import response from './response';
 
-import type {AppCreator} from './types';
+import type {App} from './types';
 
 /**
  * Set an HTTP response header.
  * @param {String} name Name of the header to set.
  * @param {String} value Value to set the header to.
- * @returns {Function} App creator.
+ * @returns {App} App instance.
  */
-const header = (name: string, value: string): AppCreator => {
-  return request((req, res) => {
+const header = (name: string, value: string): App => {
+  return response((res) => {
     res.setHeader(name, value);
     return next;
   });

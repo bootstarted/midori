@@ -1,0 +1,23 @@
+{
+  "ignore": ["./dist/**/*"],
+  "presets": [
+    ["@babel/preset-env", {
+      "shippedProposals": true,
+      "targets": {
+        "node": "current"
+      }
+    }],
+    "@babel/preset-react",
+    "@babel/preset-flow"
+  ],
+  "plugins": [
+    ["babel-plugin-styled-components", {
+      "ssr": true
+    }],
+    "@babel/plugin-proposal-class-properties",
+    ["module-resolver", {
+      "alias": {"": "./src"},
+      "cwd": "babelrc"
+    }]
+  ]
+}

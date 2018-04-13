@@ -1,16 +1,15 @@
 // @flow
-import request from './request';
-import halt from './halt';
+import send from './send';
 import {format} from 'url';
 
-import type {AppCreator} from './types';
+import type {App} from './types';
 
 type Redirect = {
-  (url: URL): AppCreator;
-  (url: string): AppCreator;
-  (statusCode: number, url: string): AppCreator;
-  (statusCode: number, url: URL): AppCreator;
-}
+  (url: URL): App,
+  (url: string): App,
+  (statusCode: number, url: string): App,
+  (statusCode: number, url: URL): App,
+};
 
 type Normalize = {
   statusCode: number,
@@ -37,23 +36,23 @@ const normalize = (statusCode: number, url: string | URL): Normalize => {
  * Redirect somewhere. Ends the app chain.
  * @param {?Number} statusCode The status code to send back, defaults to 302.
  * @param {String|Object|Function} url The url to redirect to.
- * @returns {Function} App creator.
+ * @returns {App} App instance.
  */
-const redirect:Redirect = (...args): AppCreator => {
+const redirect: Redirect = (...args): App => {
   // TODO: FIXME: How to get flow happy with this?
   const {url, statusCode} = normalize(
     // $ExpectError
     args.length > 1 ? args[0] : 302,
     // $ExpectError
-    args.length <= 1 ? args[0] : args[1]
+    args.length <= 1 ? args[0] : args[1],
   );
-  return request((req, res) => {
-    res.writeHead(statusCode, {
+  return send(
+    statusCode,
+    {
       Location: url,
-    });
-    res.end();
-    return halt;
-  });
+    },
+    '',
+  );
 };
 
 export default redirect;

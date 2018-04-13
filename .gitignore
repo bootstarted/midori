@@ -3,6 +3,7 @@ node_modules
 *.map
 /*.flow
 build
+dist
 /*.js
 /match
 /internal

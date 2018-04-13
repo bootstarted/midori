@@ -4,17 +4,19 @@ import sinon from 'sinon';
 import middleware from '../../src/middleware';
 import request from '../../src/request';
 import compose from '../../src/compose';
+import fetch from '../../src/test/fetch';
 
-describe('middleware', () => {
+describe('/middleware', () => {
   it('should work with no callback', () => {
     const spy1 = sinon.spy();
     const spy2 = sinon.spy();
     const app = middleware((req, res) => {
       spy2(req, res);
-    })({request: spy1});
-    app.request('foo', 'bar');
-    expect(spy2).to.be.calledWith('foo', 'bar');
-    expect(spy1).not.to.be.called;
+    });
+    return fetch(app, '/', {onNext: spy1}).then(() => {
+      expect(spy2).to.be.called;
+      expect(spy1).not.to.be.called;
+    });
   });
 
   it('should work with basic callback', () => {
@@ -23,10 +25,10 @@ describe('middleware', () => {
     const app = middleware((req, res, next) => {
       spy2(req, res);
       next();
-    })({request: spy1});
-    return app.request('foo', 'bar').then(() => {
-      expect(spy2).to.be.calledWith('foo', 'bar');
-      expect(spy1).to.be.calledWith('foo', 'bar');
+    });
+    return fetch(app, '/', {onNext: spy1}).then(() => {
+      expect(spy2).to.be.called;
+      expect(spy1).to.be.called;
     });
   });
 
@@ -37,11 +39,35 @@ describe('middleware', () => {
     const app = middleware((req, res, next) => {
       spy2(req, res);
       next('error');
-    })({request: spy1, error: spy3});
-    return app.request('foo', 'bar').then(() => {
-      expect(spy2).to.be.calledWith('foo', 'bar');
+    });
+    return fetch(app, '/', {onNext: spy1, onError: spy3}).then(() => {
+      expect(spy2).to.be.called;
       expect(spy1).not.to.be.called;
-      expect(spy3).to.be.calledWith('error', 'foo', 'bar');
+      expect(spy3).to.be.calledWith('error');
+    });
+  });
+
+  it('should work with error thrown with no callback', () => {
+    const spy1 = sinon.spy();
+    const spy3 = sinon.spy();
+    const app = middleware((_req, _res) => {
+      throw new Error();
+    });
+    return fetch(app, '/', {onNext: spy1, onError: spy3}).then(() => {
+      expect(spy1).not.to.be.called;
+      expect(spy3).to.be.called;
+    });
+  });
+
+  it('should work with error thrown with callback', () => {
+    const spy1 = sinon.spy();
+    const spy3 = sinon.spy();
+    const app = middleware((_req, _res, _next) => {
+      throw new Error();
+    });
+    return fetch(app, '/', {onNext: spy1, onError: spy3}).then(() => {
+      expect(spy1).not.to.be.called;
+      expect(spy3).to.be.called;
     });
   });
 
@@ -57,11 +83,11 @@ describe('middleware', () => {
       middleware((err, req, res, next) => {
         spy2(err, req, res);
         next();
-      })
-    )({request: spy1, error: spy3});
-    return app.request('foo', 'bar').then(() => {
-      expect(spy2).to.be.calledWith(error, 'foo', 'bar');
-      expect(spy1).to.be.calledWith('foo', 'bar');
+      }),
+    );
+    return fetch(app, '/', {onNext: spy1, onError: spy3}).then(() => {
+      expect(spy2).to.be.calledWith(error);
+      expect(spy1).to.be.called;
       expect(spy3).not.to.be.called;
     });
   });
@@ -78,12 +104,12 @@ describe('middleware', () => {
       middleware((err, req, res, next) => {
         spy2(err, req, res);
         next(err);
-      })
-    )({request: spy1, error: spy3});
-    return app.request('foo', 'bar').then(() => {
-      expect(spy2).to.be.calledWith(error, 'foo', 'bar');
+      }),
+    );
+    return fetch(app, '/', {onNext: spy1, onError: spy3}).then(() => {
+      expect(spy2).to.be.calledWith(error);
       expect(spy1).not.to.be.called;
-      expect(spy3).to.be.calledWith(error, 'foo', 'bar');
+      expect(spy3).to.be.calledWith(error);
     });
   });
 

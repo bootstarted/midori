@@ -1,32 +1,91 @@
 import {expect} from 'chai';
-import bl from 'bl';
-import onFinished from 'on-finished';
+import sinon from 'sinon';
 
+import apply from '../../src/apply';
 import compose from '../../src/compose';
-import timing from '../../src/timing';
+import pure from '../../src/pure';
+import request from '../../src/request';
+import response from '../../src/response';
 import send from '../../src/send';
+import timing, {setMark} from '../../src/timing';
+import fetch from '../../src/test/fetch';
 
-describe('timing', () => {
-  it('should do some math', (done) => {
-    const app = compose(
-      timing(),
-      send('test')
-    )();
-    const req = bl('test');
-    const res = bl(() => {});
-    res.setHeader = () => {};
-    res.writeHead = () => {};
-    res.finished = false;
-    app.request(req, res);
-    res.writeHead();
-    onFinished(res, () => {
-      try {
-        expect(res).to.have.property('timing').to.have.property('end');
-        expect(req).to.have.property('timing').to.have.property('start');
-        done();
-      } catch (err) {
-        done(err);
-      }
+describe('/timing', () => {
+  let mark;
+
+  beforeEach(() => {
+    mark = sinon.stub().returns([0, 0]);
+    setMark(mark);
+  });
+
+  describe('/headers', () => {
+    it('should resolve if ended', async () => {
+      let stamp = null;
+      const app = compose(
+        (x) =>
+          apply(
+            timing.headers,
+            (_1) => (_2) => x,
+            (timing, res) => {
+              stamp = timing;
+              return pure(res);
+            },
+          )(x),
+        request(() => {
+          return send(200, 'hello');
+        }),
+      );
+      await fetch(app, '/');
+      // FIXME: Make this work properly.
+      expect(stamp).to.equal(0);
+    });
+    it('should resolve on headers', async () => {
+      let stamp = null;
+      const app = compose(
+        (x) =>
+          apply(
+            timing.headers,
+            (_1) => (_2) => x,
+            (timing, res) => {
+              stamp = timing;
+              return pure(res);
+            },
+          )(x),
+        response((res) => {
+          return new Promise((resolve) => {
+            // FIXME: Find better way of doing this.
+            setTimeout(() => {
+              res.writeHead(200);
+              resolve(pure(null));
+            }, 2);
+          });
+        }),
+      );
+      await fetch(app, '/');
+      // FIXME: Make this work properly.
+      expect(stamp).to.equal(0);
+    });
+  });
+  describe('/end', () => {
+    it('should resolve', async () => {
+      let stamp = null;
+      const app = compose(
+        (x) =>
+          apply(
+            timing.end,
+            (_1) => (_2) => x,
+            (timing, res) => {
+              stamp = timing;
+              return pure(res);
+            },
+          )(x),
+        request(async () => {
+          return send(200, 'hello');
+        }),
+      );
+      await fetch(app, '/');
+      // FIXME: Make this work properly.
+      expect(stamp).to.equal(0);
     });
   });
 });

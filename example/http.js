@@ -1,10 +1,10 @@
 // @flow
-import {request, halt, listen} from '../src';
+import {response, halt, listen} from '../src';
 
-const app = request((req, res) => {
+const app = response((res) => {
   res.statusCode = 200;
   res.end('Hello world.');
   return halt;
 });
 
-listen(app, 8081);
+listen(app, 8080);

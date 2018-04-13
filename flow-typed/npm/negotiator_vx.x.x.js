@@ -14,46 +14,17 @@
  */
 
 declare module 'negotiator' {
-  declare module.exports: any;
-}
-
-/**
- * We include stubs for each file inside this npm package in case you need to
- * require those files directly. Feel free to delete any files that aren't
- * needed.
- */
-declare module 'negotiator/lib/charset' {
-  declare module.exports: any;
-}
-
-declare module 'negotiator/lib/encoding' {
-  declare module.exports: any;
-}
-
-declare module 'negotiator/lib/language' {
-  declare module.exports: any;
-}
-
-declare module 'negotiator/lib/mediaType' {
-  declare module.exports: any;
-}
-
-// Filename aliases
-declare module 'negotiator/index' {
-  declare module.exports: $Exports<'negotiator'>;
-}
-declare module 'negotiator/index.js' {
-  declare module.exports: $Exports<'negotiator'>;
-}
-declare module 'negotiator/lib/charset.js' {
-  declare module.exports: $Exports<'negotiator/lib/charset'>;
-}
-declare module 'negotiator/lib/encoding.js' {
-  declare module.exports: $Exports<'negotiator/lib/encoding'>;
-}
-declare module 'negotiator/lib/language.js' {
-  declare module.exports: $Exports<'negotiator/lib/language'>;
-}
-declare module 'negotiator/lib/mediaType.js' {
-  declare module.exports: $Exports<'negotiator/lib/mediaType'>;
+  import type {IncomingMessage} from 'http';
+  declare class Negotiator {
+    constructor(IncomingMessage): void;
+    mediaType(?Array<string>): string;
+    mediaTypes(?Array<string>): Array<string>;
+    language(?Array<string>): string;
+    languages(?Array<string>): Array<string>;
+    charset(?Array<string>): string;
+    charsets(?Array<string>): Array<string>;
+    encoding(?Array<string>): string;
+    encodings(?Array<string>): Array<string>;
+  }
+  declare module.exports: Class<Negotiator>;
 }

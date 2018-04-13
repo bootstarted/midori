@@ -34,8 +34,7 @@ describe('internal/baseApp', () => {
 
   it('should provide a default error handler', () => {
     const err = new Error('test');
-    const result = baseApp.error(err);
-    expect(err.message).to.equal(result.message);
+    baseApp.error(err);
   });
 
   it('should provide a default upgrade handler', () => {

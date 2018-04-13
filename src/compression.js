@@ -2,7 +2,7 @@
 import compression from 'compression';
 import middleware from './middleware';
 
-import type {AppCreator} from './types';
+import type {App} from './types';
 
 type Filter = (req: *, res: *) => boolean;
 
@@ -14,12 +14,12 @@ type Options = {
   strategy?: number,
   threshold?: string | number | false,
   windowBits?: number,
-}
+};
 
 /**
  * Compress the response sent back to the client.
+ * @tag util
  * @param {?Object} options Compression options.
- * @returns {Function} App creator.
+ * @returns {App} App instance.
  */
-export default (options: ?Options): AppCreator =>
-  middleware(compression(options));
+export default (options: ?Options): App => middleware(compression(options));

@@ -1,0 +1,180 @@
+// @flow
+import {getStatusText} from 'http-status-codes';
+import {PassThrough} from 'stream';
+import consumeUntil from 'consume-until';
+import httpHeaders from 'http-headers';
+
+import type {App} from './types';
+import type {IncomingMessage, ServerResponse} from 'http';
+import type {Socket} from 'net';
+type RequestHandler = (req: ServerResponse) => App | Promise<App>;
+type Headers = {
+  [string]: Array<string> | string,
+};
+
+const endOfHeaders = new Buffer('\r\n\r\n');
+
+class ProxyUpgradeResponse {
+  headers: Headers = {};
+  statusCode: number = 200;
+  statusMessage: ?string = null;
+  headersSent: boolean = false;
+  socket: Socket;
+  finished: boolean = false;
+  constructor(socket: Socket) {
+    this.socket = socket;
+    const tmp = new PassThrough();
+    const oldWrite = socket.write;
+    const oldEnd = socket.end;
+    consumeUntil(tmp, endOfHeaders, (err, head) => {
+      try {
+        if (!err) {
+          tmp.end();
+          Object.assign(this, httpHeaders(head));
+          this.headersSent = true;
+          this.writeHead();
+        }
+      } catch (err) {
+        // TODO: Do something?
+      }
+    });
+    // $ExpectError
+    socket.write = (data, encoding, cb) => {
+      if (!this.headersSent) {
+        tmp.write(data, typeof encoding === 'function' ? undefined : encoding);
+      }
+      return oldWrite.call(socket, data, encoding, cb);
+    };
+    // $ExpectError
+    socket.end = (data, encoding, cb) => {
+      if (!this.headersSent) {
+        tmp.end(data, typeof encoding === 'function' ? undefined : encoding);
+      }
+      return oldEnd.call(socket, data, encoding, cb);
+    };
+  }
+  getHeader(name) {
+    return this.headers[name.toLowerCase()];
+  }
+  writeHead(statusCode: number = this.statusCode, msg?, headers?) {
+    if (this.headersSent) {
+      return;
+    }
+    this.statusCode = statusCode;
+    if (typeof msg === 'string') {
+      this.statusMessage = msg;
+    } else {
+      try {
+        this.statusMessage = getStatusText(this.statusCode);
+      } catch (err) {
+        this.statusMessage = '';
+      }
+    }
+    let newHeaders = {};
+    if (typeof headers === 'undefined' && typeof msg === 'object') {
+      newHeaders = msg;
+    } else if (typeof headers === 'object') {
+      newHeaders = headers;
+    }
+    Object.keys(newHeaders).forEach((k) => {
+      this.headers[k.toLowerCase()] = newHeaders[k];
+    });
+    this.headersSent = true;
+    this.socket.write(`HTTP/1.1 ${this.statusCode}`);
+    if (
+      typeof this.statusMessage === 'string' &&
+      this.statusMessage.length > 0
+    ) {
+      this.socket.write(` ${this.statusMessage}\n`);
+    } else {
+      this.socket.write('\n');
+    }
+    Object.keys(this.headers).forEach((header) => {
+      const value = this.headers[header];
+      if (typeof value === 'string') {
+        this.socket.write(`${header}: ${value}\n`);
+      } else if (Array.isArray(value)) {
+        value.forEach((value) => {
+          this.socket.write(`${header}: ${value}\n`);
+        });
+      }
+    });
+    this.socket.write('\n');
+  }
+  removeHeader(n) {
+    delete this.headers[n.toLowerCase()];
+  }
+  setHeader(n, v) {
+    this.headers[n.toLowerCase()] = v;
+  }
+  removeListener(...args) {
+    this.socket.removeListener(...args);
+  }
+  on(...args) {
+    this.socket.on(...args);
+    return this;
+  }
+  once(...args) {
+    this.socket.once(...args);
+    return this;
+  }
+  emit(...args) {
+    this.socket.emit(...args);
+    return this;
+  }
+  write(...args) {
+    if (!this.headersSent) {
+      this.writeHead();
+    }
+    return this.socket.write(...args);
+  }
+  end(...args) {
+    this.finished = true;
+    if (!this.headersSent) {
+      this.writeHead();
+    }
+    return this.socket.end(...args);
+  }
+}
+
+const proxyResponseCache: WeakMap<
+  IncomingMessage,
+  ProxyUpgradeResponse,
+> = new WeakMap();
+
+export const getUpgradeResponse = (req: IncomingMessage) => {
+  return proxyResponseCache.get(req);
+};
+
+/**
+ * Main thing.
+ * @param {Function} handler Request handler. Must return another app.
+ * @returns {App} App instance.
+ */
+export default (handler: RequestHandler): App => (app) => {
+  return {
+    ...app,
+    request: async (req, res) => {
+      try {
+        const nextApp = await handler(res);
+        return await nextApp(app).request(req, res);
+      } catch (err) {
+        return await app.requestError(err, req, res);
+      }
+    },
+    upgrade: async (req, socket, head) => {
+      try {
+        let proxyResponse = proxyResponseCache.get(req);
+        if (proxyResponse === undefined) {
+          proxyResponse = new ProxyUpgradeResponse(socket);
+          proxyResponseCache.set(req, proxyResponse);
+        }
+        // flowlint-next-line unclear-type: off
+        const nextApp = await handler((proxyResponse: any));
+        return await nextApp(app).upgrade(req, socket, head);
+      } catch (err) {
+        return await app.upgradeError(err, req, socket, head);
+      }
+    },
+  };
+};

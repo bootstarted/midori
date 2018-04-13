@@ -4,7 +4,7 @@ import sinon from 'sinon';
 import pending from '../../src/pending';
 import next from '../../src/next';
 
-describe('pending', () => {
+describe('/pending', () => {
   let clock;
 
   beforeEach(() => {
@@ -28,9 +28,12 @@ describe('pending', () => {
   it('should invoke correct app when trigger is applied', () => {
     const spy = sinon.spy();
     let f;
-    const app = pending((fn) => {
-      f = fn;
-    }, {timeout: 300})({request: spy});
+    const app = pending(
+      (fn) => {
+        f = fn;
+      },
+      {timeout: 300},
+    )({request: spy});
     const promise = app.request({on: () => {}}, {});
     clock.tick(100);
     f(next);
@@ -43,10 +46,13 @@ describe('pending', () => {
     const spy = sinon.spy();
     const spy2 = sinon.spy();
     let f;
-    const app = pending((fn) => {
-      f = fn;
-      return spy2;
-    }, {timeout: 300})({request: spy});
+    const app = pending(
+      (fn) => {
+        f = fn;
+        return spy2;
+      },
+      {timeout: 300},
+    )({request: spy});
     const promise = app.request({on: () => {}}, {});
     clock.tick(100);
     f(next);

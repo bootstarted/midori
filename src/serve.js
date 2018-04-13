@@ -1,38 +1,36 @@
 // @flow
 import send from 'send';
-import parse from 'parseurl';
+import onFinished from 'on-finished';
+import apply from './apply';
 import request from './request';
-import pure from './pure';
+import response from './response';
+import halt from './halt';
 import next from './next';
-import compose from './compose';
-import status from './status';
 import write from './send';
+import baseUrl from './baseUrl';
+import url from './url';
 
-import type {AppCreator} from './types';
-import type {IncomingMessage} from 'http';
+import type {App} from './types';
+
 type Options = {
   final?: boolean,
-  onDirectory?: (directory: string) => AppCreator,
+  onDirectory?: (directory: string) => App,
   acceptRanges?: boolean,
   cacheControl?: boolean,
-  dotfiles?: ('allow' | 'deny' | 'ignore'),
+  dotfiles?: 'allow' | 'deny' | 'ignore',
   end?: number,
   etag?: boolean,
   extensions?: Array<string>,
   immutable?: boolean,
   index?: boolean,
   lastModified?: boolean,
-  maxAge?: (number | string),
+  maxAge?: number | string,
   root: string,
   start?: number,
 };
 
-const getBase = (req: IncomingMessage): string => {
-  const url: URL = parse(req);
-  if (typeof req.baseUrl === 'string') {
-    return url.pathname.substr(req.baseUrl.length);
-  }
-  return url.pathname;
+const getPath = (baseUrl: string, pathname: string): string => {
+  return pathname.substr(baseUrl.length);
 };
 
 /**
@@ -45,30 +43,28 @@ const getBase = (req: IncomingMessage): string => {
  * @param {Function} options.onDirectory Invoked with a directory path when a
  * directory is encountered. You can use this to do things like provide a
  * directory listing or return some other status. Defaults to returning 204.
- * @returns {Function} App creator.
+ * @returns {App} App instance.
  */
 export default ({
   final = true,
-  onDirectory = () => compose(status(204), write('')),
+  onDirectory = () => write(204, ''),
   ...options
-}: Options): AppCreator => request((req, res) => {
-  const path = getBase(req);
-  return new Promise((resolve, reject) => {
-    const stream = send(req, path, options);
-    stream
-      .on('error', (err) => {
-        if (err && err.code === 'ENOENT' && !final) {
-          resolve(next);
-        } else {
-          reject(err);
-        }
-      })
-      .on('directory', (res, path) => {
-        resolve(onDirectory(path));
-      })
-      .pipe(res)
-      .on('finish', () => {
-        resolve(pure(null));
-      });
+}: Options): App =>
+  apply(request, response, baseUrl, url, (req, res, baseUrl, {pathname}) => {
+    return new Promise((resolve, reject) => {
+      const stream = send(req, getPath(baseUrl, pathname), options);
+      onFinished(res, () => resolve(halt));
+      stream
+        .once('error', (err) => {
+          if (err && (err.code === 'ENOENT' || err.status === 404) && !final) {
+            resolve(next);
+          } else {
+            reject(err);
+          }
+        })
+        .once('directory', (res, path) => {
+          resolve(onDirectory(path));
+        })
+        .pipe(res);
+    });
   });
-});

@@ -3,12 +3,18 @@ import type {Server} from 'http';
 import type {App} from './types';
 type Listening = (server: Server) => void | (() => void);
 
-export default (listener: Listening) => (app: App) => {
+/**
+ * Invoke a function whenever the app is connected to a server and that server
+ * is already listening or starts listening.
+ * @param {Function} listener Function to call.
+ * @returns {App} App instance.
+ */
+export default (listener: Listening): App => (base) => {
   return {
-    ...app,
+    ...base,
     listening() {
       listener(this);
-      app.listening(this);
+      base.listening(this);
     },
   };
 };

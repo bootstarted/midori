@@ -6,8 +6,9 @@ import compose from '../../src/compose';
 import serve from '../../src/serve';
 import send from '../../src/send';
 import fetch from '../../src/test/fetch';
+import {baseUrl} from '../../src/match/path';
 
-describe('serve', () => {
+describe('/serve', () => {
   it('should serve some files', () => {
     const app = serve({root: __dirname});
     return fetch(app, '/serve.spec.js').then((res) => {
@@ -17,7 +18,12 @@ describe('serve', () => {
 
   it('should work with path prefixes', () => {
     const app = serve({root: __dirname});
-    return fetch(app, '/foo/serve.spec.js', {baseUrl: '/foo'}).then((res) => {
+    return fetch(app, '/foo/serve.spec.js', {
+      mapRequest: (req) => {
+        baseUrl.set(req, '/foo');
+        return req;
+      },
+    }).then((res) => {
       expect(res.body).to.contain('import sinon');
     });
   });
@@ -25,7 +31,7 @@ describe('serve', () => {
   it('should call next handler with `final` set to `false`', () => {
     const app = compose(
       serve({root: __dirname, final: false}),
-      send('hello')
+      send('hello'),
     );
     return fetch(app, '/404').then((res) => {
       expect(res.body).to.equal('hello');
@@ -61,11 +67,14 @@ describe('serve', () => {
 
   it('should invoke error handler on errors', () => {
     const app = serve({root: __dirname});
-    return fetch(app, '/404').then(() => {
-      throw new Error();
-    }, (err) => {
-      expect(err).to.have.property('statusCode', 404);
-      return Promise.resolve();
-    });
+    return fetch(app, '/404').then(
+      () => {
+        throw new Error();
+      },
+      (err) => {
+        expect(err).to.have.property('statusCode', 404);
+        return Promise.resolve();
+      },
+    );
   });
 });
