@@ -2,7 +2,7 @@ import {expect} from 'chai';
 
 import compose from '../../src/compose';
 
-describe('compose', () => {
+describe('/compose', () => {
   it('should work with zero args', () => {
     expect(compose()('foo')).to.equal('foo');
   });

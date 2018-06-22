@@ -5,7 +5,7 @@ import bl from 'bl';
 import send from '../../src/send';
 import fetch from '../../src/test/fetch';
 
-describe('send', () => {
+describe('/send', () => {
   it('should not call next request', () => {
     const onNext = sinon.spy();
     return fetch(send('foo'), '/', {onNext}).then(() => {
@@ -20,10 +20,18 @@ describe('send', () => {
     });
   });
 
+  it('should send status and headers', () => {
+    const data = new Buffer('hello');
+    return fetch(send(307, {foo: 'bar'}, data), '/').then((res) => {
+      expect(res.statusCode).to.equal(307);
+      expect(res.headers.foo).to.equal('bar');
+      expect(res.body).to.equal('hello');
+    });
+  });
+
   it('should work with streams', () => {
     const data = new Buffer('hello');
-    const app = send(bl(data))();
-    return fetch(app, '/').then((res) => {
+    return fetch(send(bl(data)), '/').then((res) => {
       expect(res.body).to.equal('hello');
     });
   });
@@ -31,6 +39,12 @@ describe('send', () => {
   it('should fail for invalid values', () => {
     expect(() => {
       send(false);
+    }).to.throw(TypeError);
+  });
+
+  it('should fail with no arguments', () => {
+    expect(() => {
+      send();
     }).to.throw(TypeError);
   });
 });

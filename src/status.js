@@ -1,16 +1,16 @@
 // @flow
-import request from './request';
+import response from './response';
 import next from './next';
 
-import type {AppCreator} from './types';
+import type {App} from './types';
 
 /**
  * Set the HTTP status code for the response.
  * @param {Number} statusCode The status code to set.
- * @returns {Function} App creator.
+ * @returns {App} App instance.
  */
-const status = (statusCode: number): AppCreator => {
-  return request((req, res) => {
+const status = (statusCode: number): App => {
+  return response((res) => {
     res.statusCode = statusCode;
     return next;
   });

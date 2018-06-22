@@ -2,20 +2,31 @@
 import type {IncomingMessage, ServerResponse, Server} from 'http';
 import type {Socket} from 'net';
 
-export type App = {
+export type InternalInstance = {|
   request: (req: IncomingMessage, res: ServerResponse) => mixed,
-  error: (err: Error, req: IncomingMessage, res: ServerResponse) => mixed,
-  close: () => void,
-  listening: (server: Server) => void,
-  upgrade: (req: IncomingMessage, socket: Socket, head: Buffer) => void,
-};
+  requestError: (
+    err: Error,
+    req: IncomingMessage,
+    res: ServerResponse,
+  ) => mixed,
+  upgrade: (req: IncomingMessage, socket: Socket, head: Buffer) => mixed,
+  upgradeError: (
+    err: Error,
+    req: IncomingMessage,
+    socket: Socket,
+    head: Buffer,
+  ) => mixed,
+  close: () => mixed,
+  listening: (server: Server) => mixed,
+  error: (err: Error) => mixed,
+|};
 
 export type Matches = (req: IncomingMessage) => boolean;
 
-export type Match = {
+export type Match = {|
   matches: Matches,
-  app: App,
-};
+  app: InternalInstance,
+|};
 
-export type AppCreator = (app: App) => App;
-export type MatchCreator = (app: App) => Match;
+export type App = (app: InternalInstance) => InternalInstance;
+export type MatchCreator = (app: InternalInstance) => Match;

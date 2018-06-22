@@ -4,14 +4,14 @@ import request from './request';
 import status from './status';
 import send from './send';
 
-import type {AppCreator} from './types';
+import type {App} from './types';
 
 type Disposer = () => void;
-type TriggerCallback = (a: AppCreator) => void;
+type TriggerCallback = (a: App) => void;
 type Trigger = (c: TriggerCallback) => void | Disposer;
 type Options = {
   timeout: number,
-  onTimeout: AppCreator,
+  onTimeout: App,
 };
 
 const defaultOnTimeout = compose(
@@ -35,36 +35,36 @@ const defaultOptions = {
  * @param {Object} options Options to control pending behaviour.
  * @param {Number} options.timeout How long to wait before timing out.
  * @param {Object} options.onTimeout App to use when timeout occurs.
- * @returns {Function} App creator.
+ * @returns {App} App instance.
  */
-const pending = (
-  trigger: Trigger,
-  options: Options = defaultOptions
-): AppCreator => {
+const pending = (trigger: Trigger, options: Options = defaultOptions): App => {
   const {
     timeout = defaultOptions.timeout,
     onTimeout = defaultOptions.onTimeout,
   } = options;
-  return request((req) => new Promise((resolve) => {
-    let disposer = null;
-    const dispose = () => {
-      if (disposer) {
-        disposer();
-        disposer = null;
-      }
-    };
-    const timer = setTimeout(() => {
-      dispose();
-      resolve(onTimeout);
-    }, timeout);
-    const fn = (newApp) => {
-      clearTimeout(timer);
-      dispose();
-      resolve(newApp);
-    };
-    disposer = trigger(fn);
-    req.on('close', dispose);
-  }));
+  return request(
+    (req) =>
+      new Promise((resolve) => {
+        let disposer = null;
+        const dispose = () => {
+          if (disposer) {
+            disposer();
+            disposer = null;
+          }
+        };
+        const timer = setTimeout(() => {
+          dispose();
+          resolve(onTimeout);
+        }, timeout);
+        const fn = (newApp) => {
+          clearTimeout(timer);
+          dispose();
+          resolve(newApp);
+        };
+        disposer = trigger(fn);
+        req.on('close', dispose);
+      }),
+  );
 };
 
 export default pending;

@@ -4,17 +4,23 @@ import {expect} from 'chai';
 
 import proxy from '../../src/proxy';
 
-describe('proxy', () => {
+describe('/proxy', () => {
   let sandbox;
   let server;
+  let ws;
+  let web;
 
   beforeEach(() => {
-    sandbox = sinon.sandbox.create();
-    sandbox.stub(Proxy, 'createProxy').returns(server = {
-      ws: sandbox.stub(),
-      web: sandbox.stub(),
-      on: sandbox.stub(),
-    });
+    sandbox = sinon.createSandbox();
+    ws = sandbox.stub();
+    web = sandbox.stub();
+    sandbox.stub(Proxy, 'createProxy').returns(
+      (server = {
+        ws,
+        web,
+        on: sandbox.stub(),
+      }),
+    );
   });
 
   afterEach(() => {
@@ -47,5 +53,23 @@ describe('proxy', () => {
     const options = {onResponse: 5};
     proxy(options);
     expect(server.on).to.be.calledWith('proxyRes', 5);
+  });
+
+  it('shoud forward `request` errors', () => {
+    const spy = sinon.spy();
+    const options = {target: 'http://www.google.ca'};
+    const app = proxy(options)({requestError: spy});
+    web.callsArgWith(3, 'foo');
+    app.request(1, 2);
+    expect(spy).to.be.calledWith('foo');
+  });
+
+  it('shoud forward `upgrade` errors', () => {
+    const spy = sinon.spy();
+    const options = {target: 'http://www.google.ca'};
+    const app = proxy(options)({upgradeError: spy});
+    ws.callsArgWith(4, 'foo');
+    app.upgrade(1, 2, 3);
+    expect(spy).to.be.calledWith('foo');
   });
 });

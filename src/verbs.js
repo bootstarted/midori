@@ -5,11 +5,12 @@ import path from './match/path';
 import every from './match/every';
 import match from './match';
 
-import type {AppCreator} from './types';
+import type {App} from './types';
 
-const verb = (verb: string) =>
-  (prefix: string, ...middleware: Array<AppCreator>): AppCreator =>
-    match(every(method(verb), path(prefix)), compose(...middleware));
+const verb = (verb: string) => (
+  prefix: string,
+  ...middleware: Array<App>
+): App => match(every(method(verb), path(prefix)), compose(...middleware));
 
 export const del = verb('DELETE');
 export const get = verb('GET');

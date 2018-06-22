@@ -2,25 +2,22 @@ import {expect} from 'chai';
 import sinon from 'sinon';
 
 import tap from '../../src/tap';
+import fetch from '../../src/test/fetch';
 
-describe('tap', () => {
-  it('should call the tap function', () => {
-    const next = sinon.spy();
+describe('/tap', () => {
+  it('should call the tap function', async () => {
     const spy = sinon.spy();
-    const app = tap(spy)({request: next});
-    const req = {};
-    const res = {};
-    app.request(req, res);
-    expect(spy).to.be.calledWith(req, res);
+    const app = tap(spy);
+    await fetch(app, '/');
+    expect(spy).to.be.called;
   });
 
-  it('should continue the chain', () => {
+  it('should continue the chain', async () => {
     const next = sinon.spy();
-    const spy = sinon.spy();
-    const app = tap(spy)({request: next});
-    const req = {};
-    const res = {};
-    app.request(req, res);
-    expect(next).to.be.calledWith(req, res);
+    const app = tap(() => {});
+    await fetch(app, '/', {
+      onNext: next,
+    });
+    expect(next).to.be.called;
   });
 });

@@ -1,6 +1,7 @@
 // @flow
-import errorHandler from './errorHandler';
-import handleResult from './handleResult';
+import requestErrorHandler from './error/requestErrorHandler';
+import upgradeErrorHandler from './error/upgradeErrorHandler';
+import genericErrorHandler from './error/genericErrorHandler';
 
 import type {IncomingMessage, ServerResponse} from 'http';
 import type {Socket} from 'net';
@@ -23,21 +24,16 @@ const baseApp = {
       typeof this.listenerCount !== 'function' ||
       this.listenerCount('upgrade') === 1
     ) {
-      socket.end('HTTP/1.1 501 Not Implemented\r\n' +
-        'Connection: Close\r\n' +
-        '\r\n'
+      socket.end(
+        'HTTP/1.1 404 Not Found\r\n' + 'Connection: Close\r\n' + '\r\n',
       );
     }
   },
-  listening() {
-
-  },
-  close() {
-
-  },
-  error(err: Error, req: IncomingMessage, res: ServerResponse) {
-    return handleResult(errorHandler(err, req, res), this, req, res);
-  },
+  listening() {},
+  close() {},
+  error: genericErrorHandler,
+  upgradeError: upgradeErrorHandler,
+  requestError: requestErrorHandler,
 };
 
 export default baseApp;

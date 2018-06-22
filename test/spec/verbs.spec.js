@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import * as verbs from '../../src/verbs';
 import send from '../../src/send';
 
-describe('verbs', () => {
+describe('/verbs', () => {
   it('should have some http methods', () => {
     expect(verbs.get).to.be.a('function');
     expect(verbs.del).to.be.a('function');

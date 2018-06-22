@@ -1,22 +1,25 @@
 import {expect} from 'chai';
-import sinon from 'sinon';
 
 import graceful from '../../src/graceful';
+import send from '../../src/send';
+import compose from '../../src/compose';
+import fetch from '../../src/test/fetch';
 
-describe('graceful', () => {
-  it('should 502 when server is shutting down', () => {
-    const stub = sinon.stub();
-    const spy = sinon.spy();
-    const app = graceful()({request: spy});
-    const res = {setHeader: stub, end: stub};
-    app.request({socket: {_handle: null}}, res);
-    expect(res).to.have.property('statusCode', 502);
-    expect(spy).not.to.be.called;
+describe('/graceful', () => {
+  it('should 502 when server is shutting down', async () => {
+    const app = compose(
+      graceful(),
+      send(200, ''),
+    );
+    const res = await fetch(app, '/', {offline: true});
+    expect(res.statusCode).to.equal(502);
   });
-  it('should do nothing when the server is online', () => {
-    const spy = sinon.spy();
-    const app = graceful()({request: spy});
-    app.request({socket: {_handle: true}}, {});
-    expect(spy).to.be.called;
+  it('should do nothing when the server is online', async () => {
+    const app = compose(
+      graceful(),
+      send(200, ''),
+    );
+    const res = await fetch(app, '/');
+    expect(res.statusCode).to.equal(200);
   });
 });

@@ -5,8 +5,9 @@ import compose from '../../src/compose';
 import request from '../../src/request';
 import pure from '../../src/pure';
 import error from '../../src/error';
+import fetch from '../../src/test/fetch';
 
-describe('error', () => {
+describe('/error', () => {
   it('should handle errors', () => {
     const spy = sinon.spy();
     const app = compose(
@@ -17,9 +18,10 @@ describe('error', () => {
         spy(err);
         return pure(err);
       }),
-    )();
-    app.request({}, {end: () => {}});
-    expect(spy).to.be.called;
+    );
+    return fetch(app, '/').then(() => {
+      expect(spy).to.be.called;
+    });
   });
 
   it('should call higher up the error chain', () => {
@@ -31,8 +33,29 @@ describe('error', () => {
       error((err) => {
         throw err;
       }),
-    )({error: spy});
-    app.request({}, {end: () => {}});
-    expect(spy).to.be.called;
+    );
+    return fetch(app, '/', {onError: spy}).then(() => {
+      expect(spy).to.be.called;
+    });
+  });
+
+  it('should call higher up the error chain', () => {
+    const spy = sinon.spy();
+    const app = compose(
+      request(() => {
+        throw new Error('foo');
+      }),
+      error((err) => {
+        throw err;
+      }),
+    );
+    return fetch(app, '/', {
+      onError: spy,
+      headers: {
+        Connection: 'Upgrade',
+      },
+    }).then(() => {
+      expect(spy).to.be.called;
+    });
   });
 });

@@ -1,27 +1,28 @@
 // @flow
 
 /**
- * Composes single-argument functions from right to left. The rightmost
- * function can take multiple arguments as it provides the signature for
- * the resulting composite function.
+ * Composes apps together from left to right.
  *
- * @param {...Function} funcs The functions to compose.
- * @returns {Function} A function obtained by composing the argument functions
- * from right to left. For example, compose(f, g, h) is identical to doing
- * (...args) => f(g(h(...args))).
+ * @param {Array<App>} apps The apps to compose.
+ * @returns {App} A new app representing the sequential combination of all the
+ * given apps.
  */
-const compose = (...funcs: Array<*>): * => {
-  if (funcs.length === 0) {
+const compose = (...apps: Array<*>): * => {
+  if (apps.length === 0) {
     return (arg) => arg;
   }
 
-  if (funcs.length === 1) {
-    return funcs[0];
+  if (apps.length === 1) {
+    return apps[0];
   }
 
-  return funcs.reduce((a, b) => (...args) => a(b(...args)));
+  return apps.reduce((a, b) => (...args) => a(b(...args)));
 };
 
+/**
+ * @tag core
+ * @desc Combine apps.
+ */
 // TODO: FIXME: Any way to do this without casting through `any`?
 // $ExpectError
 export default ((compose: any): $Compose);

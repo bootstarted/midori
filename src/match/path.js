@@ -2,23 +2,33 @@
 import url from 'parseurl';
 import {parse, tokensToRegExp} from 'path-to-regexp';
 
-import type {App, Match} from '../types';
+import type {IncomingMessage} from 'http';
+import type {MatchCreator, Match} from '../types';
 
 const isAbsolutePath = (path: string) => /^\//.test(path);
 
-export default (_path: string) => {
+type Params = {[string]: string};
+
+export const params: WeakMap<IncomingMessage, Params> = new WeakMap();
+export const baseUrl: WeakMap<IncomingMessage, string> = new WeakMap();
+
+export default (_path: string): MatchCreator => {
   if (!isAbsolutePath(_path)) {
     throw new TypeError('Must give absolute path.');
   }
-  return (app: App): Match => {
+  return (app): Match => {
     const path = _path.replace(/\/$/, '');
     const tokens = [
+      // TODO: FIXME: Make flow happy.
+      // $ExpectError
       ...(app && Array.isArray(app.tokens) ? app.tokens : []),
       ...(path === '' ? [] : parse(path)),
     ];
     const keys: Array<{name: string}> = [];
     const regexp = tokensToRegExp(tokens, keys, {end: false});
 
+    // TODO: FIXME: Make flow happy.
+    // $ExpectError
     return {
       app: {
         tokens,
@@ -27,16 +37,12 @@ export default (_path: string) => {
       matches: (req) => {
         const urlParams = regexp.exec(url(req).pathname);
         if (urlParams) {
-          const baseUrl = urlParams[0];
-          const params: {[string]: mixed} = typeof req.params === 'object' &&
-            req.params !== null ? req.params : {};
+          const newParams: {[string]: string} = params.get(req) || {};
           keys.forEach(({name}, i) => {
-            params[name] = urlParams[i + 1];
+            newParams[name] = urlParams[i + 1];
           });
-          // $ExpectError
-          req.baseUrl = baseUrl;
-          // $ExpectError
-          req.params = params;
+          params.set(req, newParams);
+          baseUrl.set(req, urlParams[0]);
           return true;
         }
         return false;

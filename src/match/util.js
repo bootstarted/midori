@@ -1,17 +1,14 @@
 // @flow
-import type {Match, Matches, App} from '../types';
+import type {Match, Matches, MatchCreator} from '../types';
 
-export const create = (matches: Matches) => (app: App): Match => {
+export const create = (matches: Matches): MatchCreator => (app): Match => {
   return {
     app,
     matches,
   };
 };
 
-type _Predicate<T> =
-  string |
-  RegExp |
-  (x: T) => boolean;
+type _Predicate<T> = string | RegExp | ((x: T) => boolean);
 
 export type Predicate<T> = _Predicate<T> | Array<_Predicate<T>>;
 

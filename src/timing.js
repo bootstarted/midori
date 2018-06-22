@@ -1,48 +1,35 @@
 // @flow
-import headers from 'on-headers';
-import finished from 'on-finished';
-import request from './request';
-import update from './assign';
+import onHeaders from 'on-headers';
+import onFinished from 'on-finished';
+import response from './response';
+import createSelector from './createSelector';
 
-import type {AppCreator} from './types';
+type Mark = (time?: [number, number]) => [number, number];
 
-export type ResponseTiming = {
-  headers?: number,
-  end?: number,
-  start?: number,
+let mark: Mark = process.hrtime;
+
+export const setMark = (m: Mark) => (mark = m);
+
+const finish = (then, callback) => {
+  const end = mark(then);
+  callback(end[0] / 1000 + end[1] / 1000000);
 };
-export type RequestTiming = {
-  start?: number,
-  end?: number,
-};
 
-/**
- * Get the current timestamp in seconds.
- * @returns {Number} Timestamp.
- */
-function stamp() {
-  const time = process.hrtime();
-  return time[0] + time[1] * 1e-9;
-}
-
-/**
- * Attach timing information to the HTTP request and response objects. Note that
- * to use the timing results this function has to be called first in the
- * middleware chain.
- * @returns {Function} Middleware function.
- */
-export default (): AppCreator => request((req, res) => {
-  const reqTiming: RequestTiming = {};
-  const resTiming: ResponseTiming = {};
-  reqTiming.start = stamp();
-  finished(req, () => {
-    reqTiming.end = stamp();
+export const headers = createSelector(response, (res) => {
+  const then = mark();
+  return new Promise((resolve) => {
+    onFinished(res, () => finish(then, resolve));
+    onHeaders(res, () => finish(then, resolve));
   });
-  headers(res, () => {
-    resTiming.headers = stamp();
-  });
-  finished(res, () => {
-    resTiming.end = stamp();
-  });
-  return update({timing: reqTiming}, {timing: resTiming});
 });
+
+export const end = createSelector(response, (res) => {
+  const then = mark();
+  return new Promise((resolve) => {
+    onFinished(res, () => finish(then, resolve));
+  });
+});
+
+const timing = {headers, end};
+
+export default timing;

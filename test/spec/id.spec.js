@@ -1,13 +1,14 @@
 import {expect} from 'chai';
-import sinon from 'sinon';
 
 import id from '../../src/id';
+import send from '../../src/send';
+import fetch from '../../src/test/fetch';
 
-describe('id', () => {
+describe('/id', () => {
   it('should assign an id property to the request', () => {
-    const spy = sinon.spy();
-    const app = id()({request: spy});
-    app.request({}, {setHeader: sinon.spy()});
-    expect(spy).to.be.calledWithMatch((req) => !!req.id);
+    const app = id(send);
+    return fetch(app).then((res) => {
+      expect(res.body).to.match(/[a-e0-9]+/);
+    });
   });
 });

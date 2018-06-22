@@ -1,45 +1,37 @@
 // @flow
-import baseApp from './internal/baseApp';
-
-import type {MatchCreator, AppCreator, App} from './types';
+import type {MatchCreator, App} from './types';
 
 /**
- * Branch between two app creators based on some given predicate.
+ * Branch between two apps based on some given predicate.
  * @param {Function} createMatch Predicate to match against.
- * @param {Function} yes App creator for when the predicate is true.
- * @param {Function} no App creator for when the predicate is false.
- * @returns {Function} App creator.
+ * @param {Function} yes App for when the predicate is true.
+ * @param {Function} no App for when the predicate is false.
+ * @returns {APp} App instance.
  */
 export default function(
   createMatch: MatchCreator,
-  yes: AppCreator,
-  no: AppCreator = (x) => x
-) {
-  return function(initApp: ?App): App {
-    const _app = {
-      ...baseApp,
-      ...initApp,
-    };
-    const match = createMatch(_app);
+  yes: App,
+  no: App = (x) => x,
+): App {
+  return function(app) {
+    const match = createMatch(app);
     const yesApp = yes(match.app);
     const noApp = no(match.app);
     return {
-      ..._app,
-      upgrade(req, socket, head) {
-        const result = match.matches(req);
+      ...app,
+      upgrade: async (req, socket, head) => {
+        const result = await match.matches(req);
         if (result) {
-          yesApp.upgrade(req, socket, head);
-        } else {
-          noApp.upgrade(req, socket, head);
+          return await yesApp.upgrade(req, socket, head);
         }
+        return await noApp.upgrade(req, socket, head);
       },
-      request(req, res) {
-        const result = match.matches(req);
+      request: async (req, res) => {
+        const result = await match.matches(req);
         if (result) {
-          yesApp.request(req, res);
-        } else {
-          noApp.request(req, res);
+          return await yesApp.request(req, res);
         }
+        return await noApp.request(req, res);
       },
     };
   };
