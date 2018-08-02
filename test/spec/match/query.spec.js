@@ -38,7 +38,7 @@ describe('query match', () => {
       query([{baz: 'hello'}, {baz: 'world'}]),
       tap(yes),
       tap(no),
-    )({request: next});
+    );
 
     await fetch(app, '/foo?bar=hello&baz=world', {onNext: next});
 

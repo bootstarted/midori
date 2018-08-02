@@ -34,7 +34,7 @@ describe('/request', () => {
           return pure(5);
         }),
       );
-    })();
+    });
     const {result} = await fetch(app, '/');
     expect(result).toEqual(5);
   });
@@ -79,7 +79,7 @@ describe('/request', () => {
       error((err) => {
         return pure(err);
       }),
-    )();
+    );
     const {result} = await fetch(app, '/');
     expect(result).toBeInstanceOf(TypeError);
   });

@@ -10,11 +10,27 @@ import fetch from '../../src/test/fetch';
 
 describe('/response', () => {
   describe('upgrade events', () => {
-    it('should read data sent via socket', async () => {
+    it('should accept buffers to socket writes', async () => {
       const app = compose(
-        response(() => {
+        upgrade(({socket}) => {
+          socket.end(
+            Buffer.from(
+              'HTTP/1.1 571 Potato\r\n' +
+                'Connection: Close\r\n' +
+                '\r\n' +
+                '\r\n',
+            ),
+          );
           return next;
         }),
+      );
+      const result = await fetch(app, '/', {
+        headers: {Connection: 'Upgrade'},
+      });
+      expect(result.statusCode).toEqual(571);
+    });
+    it('should read data sent via socket', async () => {
+      const app = compose(
         upgrade(({socket}) => {
           socket.write(
             'HTTP/1.1 543 Potato\r\n' +
@@ -36,17 +52,12 @@ describe('/response', () => {
       expect(result.body).toEqual(expect.stringContaining('hello Close'));
     });
     it('should read data sent via socket', async () => {
-      const app = compose(
-        response(() => {
-          return next;
-        }),
-        upgrade(({socket}) => {
-          socket.end(
-            'HTTP/1.1 543 Potato\r\n' + 'Connection: Close\r\n' + '\r\n',
-          );
-          return next;
-        }),
-      );
+      const app = upgrade(({socket}) => {
+        socket.end(
+          'HTTP/1.1 543 Potato\r\n' + 'Connection: Close\r\n' + '\r\n',
+        );
+        return next;
+      });
       const result = await fetch(app, '/', {
         headers: {Connection: 'Upgrade'},
       });

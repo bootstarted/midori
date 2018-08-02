@@ -159,6 +159,18 @@ export const getUpgradeResponse = (req: IncomingMessage) => {
   return proxyResponseCache.get(req);
 };
 
+export const installUpgradeResponse = (
+  req: IncomingMessage,
+  socket: Socket,
+): ProxyUpgradeResponse => {
+  let proxyResponse = proxyResponseCache.get(req);
+  if (proxyResponse === undefined) {
+    proxyResponse = new ProxyUpgradeResponse(socket);
+    proxyResponseCache.set(req, proxyResponse);
+  }
+  return proxyResponse;
+};
+
 /**
  * Main thing.
  * @param {Function} handler Request handler. Must return another app.
@@ -177,11 +189,7 @@ export default (handler: RequestHandler): App => (app) => {
     },
     upgrade: async (req, socket, head) => {
       try {
-        let proxyResponse = proxyResponseCache.get(req);
-        if (proxyResponse === undefined) {
-          proxyResponse = new ProxyUpgradeResponse(socket);
-          proxyResponseCache.set(req, proxyResponse);
-        }
+        const proxyResponse = installUpgradeResponse(req, socket);
         // flowlint-next-line unclear-type: off
         const nextApp = await handler((proxyResponse: any));
         return await nextApp(app).upgrade(req, socket, head);
