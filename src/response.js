@@ -1,8 +1,7 @@
 // @flow
 import {getStatusText} from 'http-status-codes';
-import {PassThrough} from 'stream';
-import consumeUntil from 'consume-until';
 import httpHeaders from 'http-headers';
+import indexOf from 'buffer-indexof';
 
 import type {App} from './types';
 import type {IncomingMessage, ServerResponse} from 'http';
@@ -12,7 +11,7 @@ type Headers = {
   [string]: Array<string> | string,
 };
 
-const endOfHeaders = new Buffer('\r\n\r\n');
+const endOfHeaders = Buffer.from('\r\n\r\n');
 
 class ProxyUpgradeResponse {
   headers: Headers = {};
@@ -23,33 +22,47 @@ class ProxyUpgradeResponse {
   finished: boolean = false;
   constructor(socket: Socket) {
     this.socket = socket;
-    const tmp = new PassThrough();
     const oldWrite = socket.write;
     const oldEnd = socket.end;
-    consumeUntil(tmp, endOfHeaders, (err, head) => {
-      try {
-        if (!err) {
-          tmp.end();
-          Object.assign(this, httpHeaders(head));
-          this.headersSent = true;
-          this.writeHead();
-        }
-      } catch (err) {
-        // TODO: Do something?
+
+    let headBuffer = null;
+
+    const wrieHeadBuffer = (data) => {
+      headBuffer = headBuffer ? Buffer.concat([headBuffer, data]) : data;
+      const index = indexOf(headBuffer, endOfHeaders);
+      if (index !== -1) {
+        headBuffer.slice(0, index);
+        Object.assign(this, httpHeaders(headBuffer));
+        this.headersSent = true;
+        this.writeHead();
       }
-    });
+    };
+
+    const handleData = (data, encoding) => {
+      if (this.headersSent) {
+        return;
+      }
+      if (!Buffer.isBuffer(data)) {
+        wrieHeadBuffer(
+          Buffer.from(
+            data,
+            typeof encoding === 'string' ? encoding : undefined,
+          ),
+        );
+      } else {
+        wrieHeadBuffer(data);
+      }
+    };
+
     // $ExpectError
     socket.write = (data, encoding, cb) => {
-      if (!this.headersSent) {
-        tmp.write(data, typeof encoding === 'function' ? undefined : encoding);
-      }
+      handleData(data, encoding);
       return oldWrite.call(socket, data, encoding, cb);
     };
+
     // $ExpectError
     socket.end = (data, encoding, cb) => {
-      if (!this.headersSent) {
-        tmp.end(data, typeof encoding === 'function' ? undefined : encoding);
-      }
+      handleData(data, encoding);
       return oldEnd.call(socket, data, encoding, cb);
     };
   }

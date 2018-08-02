@@ -1,12 +1,12 @@
-import {expect} from 'chai';
-
 import secure from '../../src/secure';
 import fetch from '../../src/test/fetch';
 
 describe('/secure', () => {
   it('should enable strict transport security', () => {
     return fetch(secure(), '/', {encrypted: true}).then((res) => {
-      expect(res.getHeader('Strict-Transport-Security')).to.match(/max-age=/);
+      expect(res.getHeader('Strict-Transport-Security')).toEqual(
+        expect.stringMatching(/max-age=/),
+      );
     });
   });
 
@@ -17,7 +17,7 @@ describe('/secure', () => {
         host: 'foo.com',
       },
     }).then((res) => {
-      expect(res.getHeader('Location')).to.equal('https://foo.com/');
+      expect(res.getHeader('Location')).toEqual('https://foo.com/');
     });
   });
 });

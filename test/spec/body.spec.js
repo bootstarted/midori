@@ -1,5 +1,3 @@
-import {expect} from 'chai';
-import sinon from 'sinon';
 import bl from 'bl';
 import zlib from 'zlib';
 import apply from '../../src/apply';
@@ -16,7 +14,7 @@ describe('/body', () => {
     const res = await fetch(app, '/', {
       body: 'hello',
     });
-    expect(res.body).to.equal('hello');
+    expect(res.body).toEqual('hello');
   });
   it('should infer `charset` when present', async () => {
     const app = body((body) => {
@@ -28,7 +26,7 @@ describe('/body', () => {
         'Content-Type': 'text/plain; charset=utf8',
       },
     });
-    expect(res.body).to.equal('hello');
+    expect(res.body).toEqual('hello');
   });
   it('should use `charset` when explicitly set', async () => {
     const app = withOptions({charset: 'utf8'})((body) => {
@@ -40,7 +38,7 @@ describe('/body', () => {
         'Content-Type': 'text/plain; charset=utf8',
       },
     });
-    expect(res.body).to.equal('hello');
+    expect(res.body).toEqual('hello');
   });
   it('should support `deflate` content encoding', async () => {
     const app = body((body) => {
@@ -52,7 +50,7 @@ describe('/body', () => {
         'Content-Encoding': 'deflate',
       },
     });
-    expect(res.body).to.equal('hello');
+    expect(res.body).toEqual('hello');
   });
   it('should support `gzip` content encoding', async () => {
     const app = body((body) => {
@@ -64,10 +62,10 @@ describe('/body', () => {
         'Content-Encoding': 'gzip',
       },
     });
-    expect(res.body).to.equal('hello');
+    expect(res.body).toEqual('hello');
   });
   it('should fail on garbage content encoding', async () => {
-    const spy = sinon.spy();
+    const spy = jest.fn();
     const app = body((body) => {
       return send(body);
     });
@@ -77,10 +75,10 @@ describe('/body', () => {
       },
       onError: spy,
     });
-    expect(spy).to.be.called;
+    expect(spy).toHaveBeenCalled();
   });
   it('should fail if the user tries to parse body twice', async () => {
-    const spy = sinon.spy();
+    const spy = jest.fn();
     const app = apply(
       withOptions({encoding: 'utf8'}),
       withOptions({encoding: 'utf16'}),
@@ -89,10 +87,10 @@ describe('/body', () => {
     await fetch(app, '/', {
       onError: spy,
     });
-    expect(spy).to.be.called;
+    expect(spy).toHaveBeenCalled();
   });
   it('should fail if `inflate` is false and encoding set', async () => {
-    const spy = sinon.spy();
+    const spy = jest.fn();
     const app = withOptions({inflate: false})((_bodyA) => send('hello'));
     await fetch(app, '/', {
       headers: {
@@ -100,11 +98,11 @@ describe('/body', () => {
       },
       onError: spy,
     });
-    expect(spy).to.be.called;
+    expect(spy).toHaveBeenCalled();
   });
   it('should support streams', async () => {
     const app = withOptions({stream: true})((body) => {
-      expect(typeof body.read).to.equal('function');
+      expect(typeof body.read).toEqual('function');
       return send(body);
     });
     const res = await fetch(app, '/', {
@@ -113,6 +111,6 @@ describe('/body', () => {
         'Content-Type': 'text/plain; charset=utf8',
       },
     });
-    expect(res.body).to.equal('hello');
+    expect(res.body).toEqual('hello');
   });
 });

@@ -1,4 +1,3 @@
-import {expect} from 'chai';
 import request from '../../src/request';
 import apply from '../../src/apply';
 import compose from '../../src/compose';
@@ -8,7 +7,7 @@ import createSelector from '../../src/createSelector';
 import fetch from '../../src/test/fetch';
 
 describe('/apply', () => {
-  it('should call things only once', () => {
+  it('should call things only once', async () => {
     let i = 0;
     const agent = createSelector(request, request, () => {
       return {foo: i++};
@@ -20,10 +19,9 @@ describe('/apply', () => {
       return send(200, a1 === a2 && a1 === a3 ? 'true' : 'false');
     });
 
-    return fetch(app).then((res) => {
-      expect(i).to.equal(1);
-      expect(res.body).to.equal('true');
-    });
+    const res = await fetch(app);
+    expect(i).toEqual(1);
+    expect(res.body).toEqual('true');
   });
   it('work with upgrade', async () => {
     const x = createSelector(request, () => {
@@ -33,7 +31,7 @@ describe('/apply', () => {
     const res = await fetch(app, '/', {
       headers: {Connection: 'Upgrade'},
     });
-    expect(res.body).to.contain('foo');
+    expect(res.body).toEqual(expect.stringContaining('foo'));
   });
   it('work call error handler inner', async () => {
     const x = createSelector(request, () => {
@@ -48,7 +46,7 @@ describe('/apply', () => {
       }),
     );
     const res = await fetch(app, '/');
-    expect(res.body).to.contain('bar');
+    expect(res.body).toEqual(expect.stringContaining('bar'));
   });
   it('work call error handler inner with upgrade', async () => {
     const x = createSelector(request, () => {
@@ -65,7 +63,7 @@ describe('/apply', () => {
     const res = await fetch(app, '/', {
       headers: {Connection: 'Upgrade'},
     });
-    expect(res.body).to.contain('bar');
+    expect(res.body).toEqual(expect.stringContaining('bar'));
   });
   it('work call error handler with upgrade', async () => {
     const x = createSelector(request, () => {
@@ -82,6 +80,6 @@ describe('/apply', () => {
     const res = await fetch(app, '/', {
       headers: {Connection: 'Upgrade'},
     });
-    expect(res.body).to.contain('bar');
+    expect(res.body).toEqual(expect.stringContaining('bar'));
   });
 });

@@ -1,15 +1,12 @@
-import {expect} from 'chai';
-import sinon from 'sinon';
 import compose from '../../src/compose';
-
 import request from '../../src/request';
 import pure from '../../src/pure';
 import error from '../../src/error';
 import fetch from '../../src/test/fetch';
 
 describe('/error', () => {
-  it('should handle errors', () => {
-    const spy = sinon.spy();
+  it('should handle errors', async () => {
+    const spy = jest.fn();
     const app = compose(
       request(() => {
         throw new Error('foo');
@@ -19,13 +16,12 @@ describe('/error', () => {
         return pure(err);
       }),
     );
-    return fetch(app, '/').then(() => {
-      expect(spy).to.be.called;
-    });
+    await fetch(app, '/');
+    expect(spy).toHaveBeenCalled();
   });
 
-  it('should call higher up the error chain', () => {
-    const spy = sinon.spy();
+  it('should call higher up the error chain', async () => {
+    const spy = jest.fn();
     const app = compose(
       request(() => {
         throw new Error('foo');
@@ -34,13 +30,12 @@ describe('/error', () => {
         throw err;
       }),
     );
-    return fetch(app, '/', {onError: spy}).then(() => {
-      expect(spy).to.be.called;
-    });
+    await fetch(app, '/', {onError: spy});
+    expect(spy).toHaveBeenCalled();
   });
 
-  it('should call higher up the error chain', () => {
-    const spy = sinon.spy();
+  it('should call higher up the error chain', async () => {
+    const spy = jest.fn();
     const app = compose(
       request(() => {
         throw new Error('foo');
@@ -49,13 +44,12 @@ describe('/error', () => {
         throw err;
       }),
     );
-    return fetch(app, '/', {
+    await fetch(app, '/', {
       onError: spy,
       headers: {
         Connection: 'Upgrade',
       },
-    }).then(() => {
-      expect(spy).to.be.called;
     });
+    expect(spy).toHaveBeenCalled();
   });
 });

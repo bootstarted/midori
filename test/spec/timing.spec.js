@@ -1,6 +1,3 @@
-import {expect} from 'chai';
-import sinon from 'sinon';
-
 import apply from '../../src/apply';
 import compose from '../../src/compose';
 import pure from '../../src/pure';
@@ -14,7 +11,7 @@ describe('/timing', () => {
   let mark;
 
   beforeEach(() => {
-    mark = sinon.stub().returns([0, 0]);
+    mark = jest.fn(() => [0, 0]);
     setMark(mark);
   });
 
@@ -37,7 +34,7 @@ describe('/timing', () => {
       );
       await fetch(app, '/');
       // FIXME: Make this work properly.
-      expect(stamp).to.equal(0);
+      expect(stamp).toEqual(0);
     });
     it('should resolve on headers', async () => {
       let stamp = null;
@@ -63,7 +60,7 @@ describe('/timing', () => {
       );
       await fetch(app, '/');
       // FIXME: Make this work properly.
-      expect(stamp).to.equal(0);
+      expect(stamp).toEqual(0);
     });
   });
   describe('/end', () => {
@@ -85,7 +82,7 @@ describe('/timing', () => {
       );
       await fetch(app, '/');
       // FIXME: Make this work properly.
-      expect(stamp).to.equal(0);
+      expect(stamp).toEqual(0);
     });
   });
 });

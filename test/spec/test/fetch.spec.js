@@ -1,5 +1,3 @@
-import {expect} from 'chai';
-import sinon from 'sinon';
 import bl from 'bl';
 
 import fetch from '../../../src/test/fetch';
@@ -19,7 +17,7 @@ describe('test/fetch', () => {
       }),
       '/',
     ).then((res) => {
-      expect(res.statusCode).to.equal(202);
+      expect(res.statusCode).toEqual(202);
     });
   });
   it('should emulate `res.removeHeader', () => {
@@ -31,7 +29,7 @@ describe('test/fetch', () => {
       }),
       '/',
     ).then((res) => {
-      expect(res.headers.foo).to.be.undefined;
+      expect(res.headers.foo).not.toBeDefined();
     });
   });
   it('should emulate `res.writeHead` 2-arg', () => {
@@ -42,8 +40,8 @@ describe('test/fetch', () => {
       }),
       '/',
     ).then((res) => {
-      expect(res.statusCode).to.equal(202);
-      expect(res.headers.foo).to.equal('bar');
+      expect(res.statusCode).toEqual(202);
+      expect(res.headers.foo).toEqual('bar');
     });
   });
   it('should emulate `res.writeHead` 3-arg', () => {
@@ -54,9 +52,9 @@ describe('test/fetch', () => {
       }),
       '/',
     ).then((res) => {
-      expect(res.statusCode).to.equal(202);
-      expect(res.statusMessage).to.equal('test');
-      expect(res.headers.foo).to.equal('bar');
+      expect(res.statusCode).toEqual(202);
+      expect(res.statusMessage).toEqual('test');
+      expect(res.headers.foo).toEqual('bar');
     });
   });
   it('should support req string bodies', () => {
@@ -73,7 +71,7 @@ describe('test/fetch', () => {
       '/',
       {body: 'hello'},
     ).then((res) => {
-      expect(res.body).to.equal('hello');
+      expect(res.body).toEqual('hello');
     });
   });
   it('should support req buffer bodies', () => {
@@ -90,13 +88,13 @@ describe('test/fetch', () => {
       '/',
       {body: new Buffer('hello')},
     ).then((res) => {
-      expect(res.body).to.equal('hello');
+      expect(res.body).toEqual('hello');
     });
   });
   it('should have empty req body by default', () => {
     return fetch(
       request((req) => {
-        expect(req.read()).to.equal(null);
+        expect(req.read()).toEqual(null);
         return next;
       }),
       '/',
@@ -105,8 +103,8 @@ describe('test/fetch', () => {
   it('should preserve the req body', () => {
     return fetch(
       request((req) => {
-        expect(req.read(1).toString('utf8')).to.equal('a');
-        expect(req.read(1).toString('utf8')).to.equal('b');
+        expect(req.read(1).toString('utf8')).toEqual('a');
+        expect(req.read(1).toString('utf8')).toEqual('b');
         return next;
       }),
       '/',
@@ -127,7 +125,7 @@ describe('test/fetch', () => {
       '/',
       {body: bl('hello')},
     ).then((res) => {
-      expect(res.body).to.equal('hello');
+      expect(res.body).toEqual('hello');
     });
   });
 
@@ -167,13 +165,13 @@ describe('test/fetch', () => {
     }, '/');
   });
   it('should support `onNext`', () => {
-    const spy = sinon.spy();
+    const spy = jest.fn();
     return fetch(next, '/', {onNext: spy}).then(() => {
-      expect(spy).to.be.called;
+      expect(spy).toHaveBeenCalled();
     });
   });
   it('should support `onError`', () => {
-    const spy = sinon.spy();
+    const spy = jest.fn();
     return fetch(
       request(() => {
         throw new Error();
@@ -181,7 +179,7 @@ describe('test/fetch', () => {
       '/',
       {onError: spy},
     ).then(() => {
-      expect(spy).to.be.called;
+      expect(spy).toHaveBeenCalled();
     });
   });
   it('should bubble res stream errors', () => {
@@ -195,7 +193,7 @@ describe('test/fetch', () => {
       '/',
       {onError: next},
     ).catch((error) => {
-      expect(error).to.be.an.instanceof(Error);
+      expect(error).toBeInstanceOf(Error);
     });
   });
   it('should call `upgrade` correctly', () => {
@@ -211,11 +209,11 @@ describe('test/fetch', () => {
         },
       },
     ).then((res) => {
-      expect(res.body).to.equal('foo');
+      expect(res.body).toEqual('foo');
     });
   });
   it('should handle `upgrade` errors', () => {
-    const spy = sinon.spy();
+    const spy = jest.fn();
     const app = upgrade(() => {
       throw new Error();
     });
@@ -225,16 +223,16 @@ describe('test/fetch', () => {
       },
       onError: spy,
     }).then(() => {
-      expect(spy).to.be.called;
+      expect(spy).toHaveBeenCalled();
     });
   });
   it('should call `onNext` for unhandled upgrades', () => {
-    const spy = sinon.spy();
+    const spy = jest.fn();
     return fetch(next, '/', {
       onNext: spy,
       headers: {Connection: 'upgrade'},
     }).then(() => {
-      expect(spy).to.be.called;
+      expect(spy).toHaveBeenCalled();
     });
   });
   it('should fail on invalid bodies', () => {
@@ -246,8 +244,13 @@ describe('test/fetch', () => {
       {
         body: 4,
       },
-    ).catch((error) => {
-      expect(error).to.be.an.instanceof(TypeError);
-    });
+    ).then(
+      () => {
+        throw new Error('Failure');
+      },
+      (error) => {
+        expect(error).toBeInstanceOf(TypeError);
+      },
+    );
   });
 });
