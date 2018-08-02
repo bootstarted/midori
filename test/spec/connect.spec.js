@@ -70,4 +70,65 @@ describe('/connect', () => {
     );
     expect(spy1).to.be.calledOnce;
   });
+
+  it('should catch request errors', () => {
+    const spy = jest.fn();
+    const app = () => ({request: jest.fn(), requestError: spy});
+    const server = new EventEmitter();
+    const req = new EventEmitter();
+    const res = new EventEmitter();
+    connect(
+      app,
+      server,
+    );
+    server.emit('request', req, res);
+    server.emit('foo');
+    req.emit('error');
+    expect(spy).toHaveBeenCalled();
+  });
+  it('should catch response errors', () => {
+    const spy = jest.fn();
+    const app = () => ({request: jest.fn(), requestError: spy});
+    const server = new EventEmitter();
+    const req = new EventEmitter();
+    const res = new EventEmitter();
+    connect(
+      app,
+      server,
+    );
+    server.emit('request', req, res);
+    server.emit('foo');
+    res.emit('error');
+    expect(spy).toHaveBeenCalled();
+  });
+  it('should catch upgrade request errors', () => {
+    const spy = jest.fn();
+    const app = () => ({request: jest.fn(), upgradeError: spy});
+    const server = new EventEmitter();
+    const req = new EventEmitter();
+    const socket = new EventEmitter();
+    connect(
+      app,
+      server,
+    );
+    server.emit('upgrade', req, socket);
+    server.emit('foo');
+    req.emit('error');
+    expect(spy).toHaveBeenCalled();
+  });
+  it('should catch upgrade socket errors', () => {
+    const spy = jest.fn();
+    const app = () => ({request: jest.fn(), upgradeError: spy});
+    const server = new EventEmitter();
+    const req = new EventEmitter();
+    const socket = new EventEmitter();
+    connect(
+      app,
+      server,
+    );
+    server.emit('upgrade', req, socket);
+    server.emit('foo');
+    socket.emit('error');
+    expect(spy).toHaveBeenCalled();
+  });
 });
