@@ -27,7 +27,8 @@ const sendBinary = (
   body: string | Buffer,
 ) => {
   return response((res) => {
-    res.setHeader('Content-Length', body.length.toString());
+    // 'utf8' here is only applicable if the body is a string
+    res.setHeader('Content-Length', Buffer.byteLength(body, 'utf8').toString());
     handleHead(res, status, headers);
     res.end(body);
     return halt;
