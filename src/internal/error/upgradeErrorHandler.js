@@ -11,6 +11,13 @@ const upgradeErrorHandler = (
   socket: Socket,
   _head: Buffer,
 ) => {
+  // $ExpectError
+  if (socket.ended || !socket.writable) {
+    console.error('Error occured after response already delivered.');
+    console.error('This probably indicates a problem elsewhere.');
+    console.error(err);
+    return;
+  }
   socket.end(
     'HTTP/1.1 500 Internal Server Error\r\n' + 'Connection: Close\r\n' + '\r\n',
   );

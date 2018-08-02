@@ -4,6 +4,7 @@ import compose from '../../src/compose';
 import next from '../../src/next';
 import header from '../../src/header';
 import send from '../../src/send';
+import error from '../../src/error';
 import upgrade from '../../src/upgrade';
 import response from '../../src/response';
 import fetch from '../../src/test/fetch';
@@ -11,23 +12,42 @@ import fetch from '../../src/test/fetch';
 describe('/response', () => {
   describe('upgrade events', () => {
     it('should accept buffers to socket writes', async () => {
-      const app = compose(
-        upgrade(({socket}) => {
-          socket.end(
-            Buffer.from(
-              'HTTP/1.1 571 Potato\r\n' +
-                'Connection: Close\r\n' +
-                '\r\n' +
-                '\r\n',
-            ),
-          );
-          return next;
-        }),
-      );
+      const app = upgrade(({socket}) => {
+        socket.end(
+          Buffer.from(
+            'HTTP/1.1 571 Potato\r\n' +
+              'Connection: Close\r\n' +
+              '\r\n' +
+              '\r\n',
+          ),
+        );
+        return next;
+      });
       const result = await fetch(app, '/', {
         headers: {Connection: 'Upgrade'},
       });
       expect(result.statusCode).toEqual(571);
+    });
+    it('should work when response has ended', async () => {
+      const spy = jest.fn();
+      const app = compose(
+        upgrade(({socket}) => {
+          socket.end();
+          socket.write(
+            Buffer.from('HTTP/1.1 111 Potato\r\n' + '\r\n' + '\r\n'),
+          );
+          return next;
+        }),
+        error(() => {
+          return send(571, {}, 'foo');
+        }),
+      );
+      const result = await fetch(app, '/', {
+        headers: {Connection: 'Upgrade'},
+        onError: spy,
+      });
+      expect(result.statusCode).toEqual(571);
+      expect(spy).toHaveBeenCalled();
     });
     it('should accept custom encodings to socket writes', async () => {
       const app = compose(

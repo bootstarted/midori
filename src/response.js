@@ -27,6 +27,13 @@ class ProxyUpgradeResponse {
 
     let headBuffer = null;
 
+    const restore = () => {
+      // $ExpectError
+      socket.write = oldWrite;
+      // $ExpectError
+      socket.end = oldEnd;
+    };
+
     const wrieHeadBuffer = (data) => {
       headBuffer = headBuffer ? Buffer.concat([headBuffer, data]) : data;
       const index = indexOf(headBuffer, endOfHeaders);
@@ -34,12 +41,17 @@ class ProxyUpgradeResponse {
         headBuffer.slice(0, index);
         Object.assign(this, httpHeaders(headBuffer));
         this.headersSent = true;
-        this.writeHead();
+        restore();
       }
     };
 
     const handleData = (data, encoding) => {
-      if (this.headersSent) {
+      // $ExpectError
+      if (socket.ended || !socket.writable) {
+        restore();
+        return;
+      }
+      if (this.headersSent || !data) {
         return;
       }
       if (!Buffer.isBuffer(data)) {
