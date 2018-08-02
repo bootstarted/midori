@@ -235,6 +235,14 @@ describe('test/fetch', () => {
       expect(spy).toHaveBeenCalled();
     });
   });
+  it('should fail on invalid apps', async () => {
+    try {
+      await fetch(4);
+      throw new Error();
+    } catch (err) {
+      expect(err).toBeInstanceOf(TypeError);
+    }
+  });
   it('should fail on invalid bodies', () => {
     fetch(
       request((req) => {

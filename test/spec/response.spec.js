@@ -29,6 +29,24 @@ describe('/response', () => {
       });
       expect(result.statusCode).toEqual(571);
     });
+    it('should accept custom encodings to socket writes', async () => {
+      const app = compose(
+        upgrade(({socket}) => {
+          socket.end(
+            'HTTP/1.1 111 Potato\r\n' +
+              'Connection: Close\r\n' +
+              '\r\n' +
+              '\r\n',
+            'utf8',
+          );
+          return next;
+        }),
+      );
+      const result = await fetch(app, '/', {
+        headers: {Connection: 'Upgrade'},
+      });
+      expect(result.statusCode).toEqual(111);
+    });
     it('should read data sent via socket', async () => {
       const app = compose(
         upgrade(({socket}) => {
