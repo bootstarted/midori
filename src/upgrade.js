@@ -1,4 +1,5 @@
 // @flow
+import {installUpgradeResponse} from './response';
 import type {App} from './types';
 import type {IncomingMessage} from 'http';
 import type {Socket} from 'net';
@@ -18,6 +19,7 @@ export default (handler: UpgradeHandler): App => (app) => {
     ...app,
     upgrade: async (req, socket, head) => {
       try {
+        installUpgradeResponse(req, socket);
         const nextApp = await handler({req, socket, head});
         return nextApp(app).upgrade(req, socket, head);
       } catch (err) {

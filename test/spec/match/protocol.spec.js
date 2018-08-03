@@ -1,6 +1,3 @@
-import {expect} from 'chai';
-import sinon from 'sinon';
-
 import tap from '../../../src/tap';
 import match from '../../../src/match';
 import protocol from '../../../src/match/protocol';
@@ -8,9 +5,9 @@ import fetch from '../../../src/test/fetch';
 
 describe('match/protocol', () => {
   it('should respect `x-forwarded-proto`', async () => {
-    const yes = sinon.spy();
-    const no = sinon.spy();
-    const next = sinon.spy();
+    const yes = jest.fn();
+    const no = jest.fn();
+    const next = jest.fn();
     const app = match(protocol('https'), tap(yes), tap(no));
 
     await fetch(app, '/', {
@@ -20,15 +17,15 @@ describe('match/protocol', () => {
       onNext: next,
     });
 
-    expect(yes).to.be.calledOnce;
-    expect(no).to.not.be.calledOnce;
-    expect(next).to.be.calledOnce;
+    expect(yes).toHaveBeenCalled();
+    expect(no).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalled();
   });
 
   it('should fallback to connection proto', async () => {
-    const yes = sinon.spy();
-    const no = sinon.spy();
-    const next = sinon.spy();
+    const yes = jest.fn();
+    const no = jest.fn();
+    const next = jest.fn();
     const app = match(protocol('https'), tap(yes), tap(no));
 
     await fetch(app, '/', {
@@ -36,8 +33,8 @@ describe('match/protocol', () => {
       onNext: next,
     });
 
-    expect(yes).to.be.calledOnce;
-    expect(no).to.not.be.calledOnce;
-    expect(next).to.be.calledOnce;
+    expect(yes).toHaveBeenCalled();
+    expect(no).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalled();
   });
 });

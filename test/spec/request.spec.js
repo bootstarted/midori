@@ -1,6 +1,3 @@
-import {expect} from 'chai';
-import sinon from 'sinon';
-
 import compose from '../../src/compose';
 import next from '../../src/next';
 import request from '../../src/request';
@@ -10,14 +7,14 @@ import fetch from '../../src/test/fetch';
 
 describe('/request', () => {
   it('should call the next handler in sequence', async () => {
-    const spy = sinon.spy();
+    const spy = jest.fn();
     const app = request(() => {
       return next;
     });
     await fetch(app, '/', {
       onNext: spy,
     });
-    expect(spy).to.be.called;
+    expect(spy).toHaveBeenCalled();
   });
 
   it('should allow for chaining', async () => {
@@ -27,7 +24,7 @@ describe('/request', () => {
       });
     });
     const {result} = await fetch(app, '/');
-    expect(result).to.equal(5);
+    expect(result).toEqual(5);
   });
 
   it('should work with promises', async () => {
@@ -37,9 +34,9 @@ describe('/request', () => {
           return pure(5);
         }),
       );
-    })();
+    });
     const {result} = await fetch(app, '/');
-    expect(result).to.equal(5);
+    expect(result).toEqual(5);
   });
 
   it('should handle promise errors', async () => {
@@ -55,7 +52,7 @@ describe('/request', () => {
       }),
     );
     const {result} = await fetch(app, '/');
-    expect(result).to.equal(5);
+    expect(result).toEqual(5);
   });
 
   it('should handle sync errors', async () => {
@@ -71,7 +68,7 @@ describe('/request', () => {
       }),
     );
     const {result} = await fetch(app, '/');
-    expect(result).to.equal(5);
+    expect(result).toEqual(5);
   });
 
   it('should fail is nothing is returned', async () => {
@@ -82,13 +79,13 @@ describe('/request', () => {
       error((err) => {
         return pure(err);
       }),
-    )();
+    );
     const {result} = await fetch(app, '/');
-    expect(result).to.be.an.instanceof(TypeError);
+    expect(result).toBeInstanceOf(TypeError);
   });
 
   it('should handle upgrades', async () => {
-    const spy = sinon.spy();
+    const spy = jest.fn();
     const app = compose(
       request(() => {
         spy();
@@ -98,11 +95,11 @@ describe('/request', () => {
     await fetch(app, '/', {
       headers: {Connection: 'upgrade'},
     });
-    expect(spy).to.be.called;
+    expect(spy).toHaveBeenCalled();
   });
 
   it('should handle upgrade errors', async () => {
-    const spy = sinon.spy();
+    const spy = jest.fn();
     const app = compose(
       request(() => {
         throw new Error();
@@ -115,6 +112,6 @@ describe('/request', () => {
     await fetch(app, '/', {
       headers: {Connection: 'upgrade'},
     });
-    expect(spy).to.be.called;
+    expect(spy).toHaveBeenCalled();
   });
 });

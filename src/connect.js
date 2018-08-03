@@ -18,6 +18,22 @@ export default function connect(app: App, server: Server) {
     throw new TypeError('Must pass valid app to `connect`.');
   }
   const inst = app(baseApp);
+  server.on('request', (req, res) => {
+    req.on('error', (err) => {
+      inst.requestError(err, req, res);
+    });
+    res.on('error', (err) => {
+      inst.requestError(err, req, res);
+    });
+  });
+  server.on('upgrade', (req, socket, head) => {
+    socket.on('error', (err) => {
+      inst.upgradeError(err, req, socket, head);
+    });
+    req.on('error', (err) => {
+      inst.upgradeError(err, req, socket, head);
+    });
+  });
   keys.forEach((evt) => {
     if (typeof inst[evt] === 'function') {
       server.on(evt, inst[evt]);

@@ -1,23 +1,17 @@
-import {expect} from 'chai';
-import sinon from 'sinon';
 import {createRequestErrorHandler} from '../../../src/internal/error/requestErrorHandler';
 import * as env from '../../../src/internal/environment';
 
+jest.mock('../../../src/internal/environment');
+
 describe('internal/errorHandler/requestErrorHandler', () => {
   let res;
-  let sandbox;
   let fakeConsole;
   let errorHandler;
 
   beforeEach(() => {
-    sandbox = sinon.createSandbox();
-    res = {socket: {}, setHeader: sinon.spy(), end: sinon.spy()};
-    fakeConsole = {error: sinon.spy(), log: sinon.spy()};
+    res = {socket: {}, setHeader: jest.fn(), end: jest.fn()};
+    fakeConsole = {error: jest.fn(), log: jest.fn()};
     errorHandler = createRequestErrorHandler(fakeConsole);
-  });
-
-  afterEach(() => {
-    sandbox.restore();
   });
 
   it('should work if the response is finished', () => {
@@ -41,30 +35,27 @@ describe('internal/errorHandler/requestErrorHandler', () => {
   it('should assign default statusCode', () => {
     const err = new Error();
     errorHandler(err, {}, res);
-    expect(res.statusCode).to.equal(500);
+    expect(res.statusCode).toEqual(500);
   });
 
   it('should assign the `statusCode` based on the error', () => {
     const err = new Error();
     err.status = 202;
     errorHandler(err, {}, res);
-    expect(res.statusCode).to.equal(202);
+    expect(res.statusCode).toEqual(202);
   });
 
   it('should assign the `statusCode` based on the error', () => {
     const err = new Error();
     err.statusCode = 202;
     errorHandler(err, {}, res);
-    expect(res.statusCode).to.equal(202);
+    expect(res.statusCode).toEqual(202);
   });
 
   describe('production', () => {
-    beforeEach(() => {
-      sandbox.stub(env, 'isProduction').returns(true);
-    });
-
     it('should be quiet in production mode', () => {
       const err = new Error();
+      env.isProduction.mockImplementation(() => true);
       errorHandler(err, {}, res);
       // TODO: Validate this somehow.
     });

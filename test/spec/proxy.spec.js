@@ -1,75 +1,83 @@
 import Proxy from 'http-proxy';
-import sinon from 'sinon';
-import {expect} from 'chai';
 
 import proxy from '../../src/proxy';
 
-describe('/proxy', () => {
-  let sandbox;
-  let server;
-  let ws;
-  let web;
-
-  beforeEach(() => {
-    sandbox = sinon.createSandbox();
-    ws = sandbox.stub();
-    web = sandbox.stub();
-    sandbox.stub(Proxy, 'createProxy').returns(
-      (server = {
+jest.mock('http-proxy', () => {
+  const ws = jest.fn();
+  const web = jest.fn();
+  const on = jest.fn();
+  return {
+    createProxy: () => {
+      const server = {
         ws,
         web,
-        on: sandbox.stub(),
-      }),
-    );
-  });
+        on,
+      };
+      return server;
+    },
+  };
+});
 
-  afterEach(() => {
-    sandbox.restore();
+describe('/proxy', () => {
+  beforeEach(() => {
+    const {ws, web} = Proxy.createProxy();
+    ws.mockClear();
+    web.mockClear();
   });
 
   it('shoud call the `web` proxy method on `request`', () => {
-    const spy = sinon.spy();
+    const spy = jest.fn();
+    const {web} = Proxy.createProxy();
     const options = {target: 'http://www.google.ca'};
     const app = proxy(options)({request: spy});
     app.request(1, 2);
-    expect(server.web).to.be.calledWithMatch(1, 2, options);
+    expect(web).toHaveBeenCalled();
   });
 
   it('shoud call the `ws` proxy method on `upgrade`', () => {
-    const spy = sinon.spy();
+    const spy = jest.fn();
+    const {ws} = Proxy.createProxy();
     const options = {target: 'http://www.google.ca'};
     const app = proxy(options)({upgrade: spy});
     app.upgrade(1, 2, 3);
-    expect(server.ws).to.be.calledWith(1, 2, 3, options);
+    expect(ws).toHaveBeenCalled();
   });
 
   it('shoud hook `proxyReq`', () => {
     const options = {onRequest: 5};
+    const {on} = Proxy.createProxy();
     proxy(options);
-    expect(server.on).to.be.calledWith('proxyReq', 5);
+    expect(on).toHaveBeenCalled();
   });
 
   it('shoud hook `proxyRes`', () => {
     const options = {onResponse: 5};
+    const {on} = Proxy.createProxy();
     proxy(options);
-    expect(server.on).to.be.calledWith('proxyRes', 5);
+    expect(on).toHaveBeenCalled();
   });
 
   it('shoud forward `request` errors', () => {
-    const spy = sinon.spy();
+    const spy = jest.fn();
     const options = {target: 'http://www.google.ca'};
     const app = proxy(options)({requestError: spy});
-    web.callsArgWith(3, 'foo');
+    const {web} = Proxy.createProxy();
+    web.mockImplementation((a, b, c, d) => {
+      d('foo');
+    });
     app.request(1, 2);
-    expect(spy).to.be.calledWith('foo');
+    expect(spy).toHaveBeenCalled();
   });
 
   it('shoud forward `upgrade` errors', () => {
-    const spy = sinon.spy();
+    const spy = jest.fn();
     const options = {target: 'http://www.google.ca'};
     const app = proxy(options)({upgradeError: spy});
-    ws.callsArgWith(4, 'foo');
+    const {ws} = Proxy.createProxy();
+    ws.mockImplementation((a, b, c, d, e) => {
+      e('foo');
+    });
     app.upgrade(1, 2, 3);
-    expect(spy).to.be.calledWith('foo');
+    expect(spy).toHaveBeenCalled();
   });
 });

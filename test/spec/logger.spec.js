@@ -1,5 +1,3 @@
-import {expect} from 'chai';
-
 import fetch from '../../src/test/fetch';
 import compose from '../../src/compose';
 import logger, {
@@ -29,10 +27,10 @@ describe('logger', () => {
       send(200, 'test'),
     );
     return fetch(app, '/foo').then(() => {
-      expect(log).to.contain('GET');
-      expect(log).to.contain('200');
-      expect(log).to.contain('/foo');
-      expect(log).to.contain('ms');
+      expect(log).toEqual(expect.stringContaining('GET'));
+      expect(log).toEqual(expect.stringContaining('200'));
+      expect(log).toEqual(expect.stringContaining('/foo'));
+      expect(log).toEqual(expect.stringContaining('ms'));
     });
   });
 

@@ -51,7 +51,10 @@ const fetch = async (
     },
     listening: () => {},
   };
-  const app = typeof App === 'function' ? App(stub) : App;
+  if (typeof App !== 'function') {
+    throw new TypeError('Must pass valid app to `fetch`.');
+  }
+  const app = App(stub);
 
   let reqBodyStream: Readable;
   const ensureReqBody = () => {

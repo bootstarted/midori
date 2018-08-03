@@ -1,5 +1,3 @@
-import {expect} from 'chai';
-import sinon from 'sinon';
 import {resolve} from 'path';
 
 import compose from '../../src/compose';
@@ -12,7 +10,7 @@ describe('/serve', () => {
   it('should serve some files', () => {
     const app = serve({root: __dirname});
     return fetch(app, '/serve.spec.js').then((res) => {
-      expect(res.body).to.contain('import sinon');
+      expect(res.body).toEqual(expect.stringContaining('import {resolve}'));
     });
   });
 
@@ -24,7 +22,7 @@ describe('/serve', () => {
         return req;
       },
     }).then((res) => {
-      expect(res.body).to.contain('import sinon');
+      expect(res.body).toEqual(expect.stringContaining('import {resolve}'));
     });
   });
 
@@ -34,12 +32,12 @@ describe('/serve', () => {
       send('hello'),
     );
     return fetch(app, '/404').then((res) => {
-      expect(res.body).to.equal('hello');
+      expect(res.body).toEqual('hello');
     });
   });
 
   it('should invoke directory handler on directories', () => {
-    const spy = sinon.spy();
+    const spy = jest.fn();
     const app = serve({
       root: __dirname,
       index: false,
@@ -49,8 +47,8 @@ describe('/serve', () => {
       },
     });
     return fetch(app, '/').then((res) => {
-      expect(res.body.length).to.equal(0);
-      expect(spy).to.be.calledOnce;
+      expect(res.body.length).toEqual(0);
+      expect(spy).toHaveBeenCalled();
     });
   });
 
@@ -60,8 +58,8 @@ describe('/serve', () => {
       index: false,
     });
     return fetch(app, '/').then((res) => {
-      expect(res.body.length).to.equal(0);
-      expect(res.statusCode).to.equal(204);
+      expect(res.body.length).toEqual(0);
+      expect(res.statusCode).toEqual(204);
     });
   });
 
@@ -72,7 +70,7 @@ describe('/serve', () => {
         throw new Error();
       },
       (err) => {
-        expect(err).to.have.property('statusCode', 404);
+        expect(err.statusCode).toEqual(404);
         return Promise.resolve();
       },
     );

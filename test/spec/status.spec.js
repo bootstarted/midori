@@ -1,5 +1,3 @@
-import {expect} from 'chai';
-
 import compose from '../../src/compose';
 import status from '../../src/status';
 import send from '../../src/send';
@@ -12,7 +10,7 @@ describe('/status', () => {
       send(''),
     );
     return fetch(app).then((res) => {
-      expect(res.statusCode).to.be.equal(200);
+      expect(res.statusCode).toBe(200);
     });
   });
 });

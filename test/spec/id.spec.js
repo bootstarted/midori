@@ -1,14 +1,11 @@
-import {expect} from 'chai';
-
 import id from '../../src/id';
 import send from '../../src/send';
 import fetch from '../../src/test/fetch';
 
 describe('/id', () => {
-  it('should assign an id property to the request', () => {
+  it('should assign an id property to the request', async () => {
     const app = id(send);
-    return fetch(app).then((res) => {
-      expect(res.body).to.match(/[a-e0-9]+/);
-    });
+    const res = await fetch(app);
+    expect(res.body).toEqual(expect.stringMatching(/[a-e0-9]+/));
   });
 });

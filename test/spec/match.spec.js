@@ -1,6 +1,3 @@
-import {expect} from 'chai';
-import sinon from 'sinon';
-
 import every from '../../src/match/every';
 import tap from '../../src/tap';
 import match from '../../src/match';
@@ -9,9 +6,9 @@ import fetch from '../../src/test/fetch';
 
 describe('/match', () => {
   it('should match both conjunctions', async () => {
-    const yes = sinon.spy();
-    const no = sinon.spy();
-    const next = sinon.spy();
+    const yes = jest.fn();
+    const no = jest.fn();
+    const next = jest.fn();
     const app = match(every(host(/foo/), host(/bar/)), tap(yes), tap(no));
 
     await fetch(app, '/', {
@@ -19,15 +16,15 @@ describe('/match', () => {
       onNext: next,
     });
 
-    expect(yes).to.be.calledOnce;
-    expect(no).to.not.be.calledOnce;
-    expect(next).to.be.calledOnce;
+    expect(yes).toHaveBeenCalled();
+    expect(no).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalled();
   });
 
   it('should not match both conjunctions', async () => {
-    const yes = sinon.spy();
-    const no = sinon.spy();
-    const next = sinon.spy();
+    const yes = jest.fn();
+    const no = jest.fn();
+    const next = jest.fn();
     const app = match(every(host(/foo/), host(/bar/)), tap(yes), tap(no));
 
     await fetch(app, '/', {
@@ -35,15 +32,15 @@ describe('/match', () => {
       onNext: next,
     });
 
-    expect(no).to.be.calledOnce;
-    expect(yes).to.not.be.calledOnce;
-    expect(next).to.be.calledOnce;
+    expect(no).toHaveBeenCalled();
+    expect(yes).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalled();
   });
 
   it('should handle `yes` branch of upgrade', async () => {
-    const yes = sinon.spy();
-    const no = sinon.spy();
-    const next = sinon.spy();
+    const yes = jest.fn();
+    const no = jest.fn();
+    const next = jest.fn();
     const app = match(
       host(/foo/),
       () => ({upgrade: yes}),
@@ -55,14 +52,14 @@ describe('/match', () => {
       onNext: next,
     });
 
-    expect(yes).to.be.calledOnce;
-    expect(no).to.not.be.calledOnce;
+    expect(yes).toHaveBeenCalled();
+    expect(no).not.toHaveBeenCalled();
   });
 
   it('should handle `no` branch of upgrade', async () => {
-    const yes = sinon.spy();
-    const no = sinon.spy();
-    const next = sinon.spy();
+    const yes = jest.fn();
+    const no = jest.fn();
+    const next = jest.fn();
     const app = match(
       host(/foo/),
       () => ({upgrade: yes}),
@@ -74,7 +71,7 @@ describe('/match', () => {
       onNext: next,
     });
 
-    expect(no).to.be.calledOnce;
-    expect(yes).to.not.be.calledOnce;
+    expect(no).toHaveBeenCalled();
+    expect(yes).not.toHaveBeenCalled();
   });
 });

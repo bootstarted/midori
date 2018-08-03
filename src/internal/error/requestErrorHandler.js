@@ -57,6 +57,8 @@ ${message}${stack}
 </html>`;
 
   res.statusCode = status;
+  res.setHeader('Connection', 'close');
+  res.setHeader('Content-Length', `${Buffer.byteLength(body, 'utf8')}`);
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.end(body);
 };
