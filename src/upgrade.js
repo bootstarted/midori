@@ -14,7 +14,7 @@ type UpgradeHandler = ({
  * @param {Function} handler Request handler. Must return another app creator.
  * @returns {App} App instance.
  */
-export default (handler: UpgradeHandler): App => (app) => {
+const upgrade = (handler: UpgradeHandler): App => (app) => {
   return {
     ...app,
     upgrade: async (req, socket, head) => {
@@ -32,3 +32,7 @@ export default (handler: UpgradeHandler): App => (app) => {
     },
   };
 };
+
+upgrade._selector = () => null;
+
+export default upgrade;

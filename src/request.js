@@ -31,4 +31,6 @@ const request = (handler: RequestHandler): App => (app) => {
   };
 };
 
+request._selector = () => null;
+
 export default request;

@@ -116,7 +116,9 @@ const app = compose(
 
 ## Testing
 
-`midori` includes a dedicated `fetch()` utility for testing purposes:
+### Testing Apps
+
+`midori` includes a dedicated `fetch()` utility for testing apps:
 
 ```javascript
 import {response, next} from 'midori';
@@ -170,6 +172,72 @@ it('should return a result', () => {
     assert(res.statusCode === 200);
   });
 });
+```
+
+### Testing Selectors
+
+You can use `runSelector` and `getSelectorImplementation` to test selectors in isolation.
+
+```js
+import {createSelector} from 'midori';
+import {runSelector, getSelectorImplementation} from 'midori/test';
+
+import mySelectorA from './mySelectorA';
+import mySelectorB from './mySelectorB';
+
+jest.mock('./mySelectorA', () => createSelector(jest.fn()));
+jest.mock('./mySelectorB', () => createSelector(jest.fn()));
+
+const mySelectorC = createSelector(
+  mySelectorA,
+  mySelectorB,
+  (a, b) => a + b,
+);
+
+
+getSelectorImplementation(selectorA).mockImplementation(() => 1);
+getSelectorImplementation(selectorB).mockImplementation(() => 1);
+
+const result = runSelector(mySelectorC);
+expect(result).toBe(2);
+```
+
+To mock `request` or other midori internal selectors you can:
+
+```js
+import {request} from 'midori';
+import {createMockRequest} from 'midori/test';
+
+jest.mock('midori/request', () => {
+  return createSelector(jest.fn(() => {
+    return createMockRequest({
+      url: '/foo',
+      method: 'POST',
+    });
+  }));
+});
+```
+
+If you're not using `jest` or just want to mock values for a single test, then `runSelector` also provides a factory function with which you can use to setup your mocks.
+
+```js
+import {createSelector} from 'midori';
+import {runSelector} from 'midori/test';
+
+import mySelectorA from './mySelectorA';
+import mySelectorB from './mySelectorB';
+
+const mySelectorC = createSelector(
+  mySelectorA,
+  mySelectorB,
+  (a, b) => a + b,
+);
+
+const result = runSelector(mySelectorC, (inst) => {
+  inst.mockValue(mySelectorA, 1);
+  inst.mockValue(mySelectorB, 1);
+});
+expect(result).toBe(2);
 ```
 
 ## Advanced
