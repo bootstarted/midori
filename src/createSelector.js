@@ -46,6 +46,8 @@ const createSelector: CS<App> = <R>(
     const result = apply(...selectors, next);
     return result;
   };
+  out._selectors = selectors;
+  out._selector = selector;
   return out;
 };
 

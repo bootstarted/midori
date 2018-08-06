@@ -188,7 +188,7 @@ export const installUpgradeResponse = (
  * @param {Function} handler Request handler. Must return another app.
  * @returns {App} App instance.
  */
-export default (handler: RequestHandler): App => (app) => {
+const response = (handler: RequestHandler): App => (app) => {
   return {
     ...app,
     request: async (req, res) => {
@@ -211,3 +211,7 @@ export default (handler: RequestHandler): App => (app) => {
     },
   };
 };
+
+response._selector = () => null;
+
+export default response;
