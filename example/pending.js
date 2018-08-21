@@ -15,12 +15,15 @@ const app = compose(
   use(
     '/unwait',
     query(({name}) => {
-      const next = send(`Hello ${name}`);
-      waits.forEach((fn) => {
-        fn(next);
-      });
-      waits.length = 0;
-      return send('It is done.');
+      if (typeof name === 'string') {
+        const next = send(`Hello ${name}`);
+        waits.forEach((fn) => {
+          fn(next);
+        });
+        waits.length = 0;
+        return send('It is done.');
+      }
+      return send('Please specify a `name` parameter.');
     }),
   ),
 );
