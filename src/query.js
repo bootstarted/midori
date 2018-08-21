@@ -4,11 +4,18 @@ import createSelector from './createSelector';
 import qs from 'qs';
 
 import type {ParseOptions} from 'qs';
+type QueryResult = {[string]: Array<QueryResult> | string};
 
 export const withOptions = (opts?: ParseOptions) => {
-  return createSelector(url, (url) => {
-    return qs.parse(url.search.substr(1), opts);
-  });
+  return createSelector(
+    url,
+    (url): QueryResult => {
+      if (!url.search) {
+        return {};
+      }
+      return qs.parse(url.search.substr(1), opts);
+    },
+  );
 };
 
 export default withOptions();
