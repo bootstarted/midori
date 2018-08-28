@@ -31,7 +31,7 @@
     "clean-webpack-plugin": "0.1.19",
     "find-nearest-file": "1.1.0",
     "pages-webpack-plugin": "0.2.0",
-    "stats-webpack-plugin": "0.6.2",
+    "stats-webpack-plugin": "0.7.0",
     "webpack": "4.17.1",
     "webpack-cli": "3.1.0",
     "webpack-node-externals": "1.7.2",
