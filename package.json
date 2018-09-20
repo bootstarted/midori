@@ -45,7 +45,7 @@
     "@babel/register": "7.0.0",
     "babel-core": "7.0.0-bridge.0",
     "babel-jest": "23.6.0",
-    "babel-loader": "8.0.0",
+    "babel-loader": "8.0.2",
     "body-parser": "1.18.3",
     "cookies": "0.7.2",
     "eslint": "4.19.1",
