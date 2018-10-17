@@ -25,6 +25,7 @@ export {default as query} from './query';
 export {default as params} from './params';
 export {default as url} from './url';
 export {default as body} from './body';
+export {default as clientIp} from './clientIp';
 
 // Convenience.
 export {default as use} from './use';
