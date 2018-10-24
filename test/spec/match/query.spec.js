@@ -47,6 +47,45 @@ describe('query match', () => {
     expect(next).toHaveBeenCalled();
   });
 
+  it('should handle no query', async () => {
+    const yes = jest.fn();
+    const no = jest.fn();
+    const next = jest.fn();
+    const app = match(query({}), tap(yes), tap(no));
+
+    await fetch(app, '/foo', {onNext: next});
+
+    expect(yes).toHaveBeenCalled();
+    expect(no).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('should handle weird objects', async () => {
+    const yes = jest.fn();
+    const no = jest.fn();
+    const next = jest.fn();
+    const app = match(query({foo: {bar: {baz: 'hello'}}}), tap(yes), tap(no));
+
+    await fetch(app, '/foo?foo[bar]=hello', {onNext: next});
+
+    expect(no).toHaveBeenCalled();
+    expect(yes).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('should handle objects', async () => {
+    const yes = jest.fn();
+    const no = jest.fn();
+    const next = jest.fn();
+    const app = match(query({foo: {bar: {baz: 'hello'}}}), tap(yes), tap(no));
+
+    await fetch(app, '/foo?foo[bar][baz]=hello', {onNext: next});
+
+    expect(yes).toHaveBeenCalled();
+    expect(no).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalled();
+  });
+
   it('should handle multiple parameters', async () => {
     const yes = jest.fn();
     const no = jest.fn();

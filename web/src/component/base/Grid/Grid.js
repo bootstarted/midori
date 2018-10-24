@@ -33,7 +33,7 @@ class Grid extends React.PureComponent<Props> {
       ...rest
     } = this.props;
     return (
-      <GridContainer gutters={gutters} align={align} {...rest}>
+      <GridContainer gutters={gutters} align={align}>
         {React.Children.map(children, (child) => {
           if (child !== null) {
             return React.cloneElement(child, {

@@ -2,17 +2,17 @@
 import type {App, InternalInstance} from './types';
 import pure from './pure';
 
-type Cont<T> = (...rest: Array<*>) => T | Promise<T>;
+type Cont<T> = (...rest: Array<mixed>) => T | Promise<T>;
 
-const cache: WeakMap<*, WeakMap<*, *>> = new WeakMap();
+const cache: WeakMap<mixed, WeakMap<mixed, mixed>> = new WeakMap();
 
-const mapToCache = (item: *): WeakMap<*, *> => {
+const mapToCache = (item: mixed): WeakMap<mixed, mixed> => {
   if (cache.has(item)) {
     // TODO: https://github.com/facebook/flow/issues/2751
     // flowlint-next-line unclear-type: off
     return (cache.get(item): any);
   }
-  const result: WeakMap<*, *> = new WeakMap();
+  const result: WeakMap<mixed, mixed> = new WeakMap();
   cache.set(item, result);
   return result;
 };
@@ -60,19 +60,21 @@ const createHandler = (app, cont, appItems) => async (cache, handleApp) => {
   return await handleApp(result(app));
 };
 
-const _apply = (cont: Cont<App>, rest: Array<Callback<*>>): App => {
-  const appItems: Array<InternalInstance> = rest.map((item: Callback<*>) => {
-    if (cache.has(item)) {
+const _apply = (cont: Cont<App>, rest: Array<Callback<mixed>>): App => {
+  const appItems: Array<InternalInstance> = rest.map(
+    (item: Callback<mixed>) => {
+      if (cache.has(item)) {
+        // FIXME
+        // $ExpectError
+        return cache.get(item);
+      }
+      const app = item(pure)(baseApp);
       // FIXME
       // $ExpectError
-      return cache.get(item);
-    }
-    const app = item(pure)(baseApp);
-    // FIXME
-    // $ExpectError
-    cache.set(item, app);
-    return app;
-  });
+      cache.set(item, app);
+      return app;
+    },
+  );
 
   return (app: InternalInstance): InternalInstance => {
     const handler = createHandler(app, cont, appItems);
@@ -80,7 +82,7 @@ const _apply = (cont: Cont<App>, rest: Array<Callback<*>>): App => {
       ...app,
       request: async (req, res) => {
         try {
-          const cache: WeakMap<*, *> = mapToCache(req);
+          const cache: WeakMap<mixed, mixed> = mapToCache(req);
           return await handler(cache, async (app) => {
             return await app.request(req, res);
           });
@@ -90,7 +92,7 @@ const _apply = (cont: Cont<App>, rest: Array<Callback<*>>): App => {
       },
       upgrade: async (req, socket, head) => {
         try {
-          const cache: WeakMap<*, *> = mapToCache(socket);
+          const cache: WeakMap<mixed, mixed> = mapToCache(socket);
           return await handler(cache, async (app) => {
             return app.upgrade(req, socket, head);
           });
@@ -129,8 +131,10 @@ type Apply = {
 const apply: Apply = (...args): App => {
   // TODO: Any way to make this better?
   // flowlint-next-line unclear-type: off
-  const rest: Array<Callback<*>> = (args.slice(0, args.length - 1): any);
+  const rest: Array<Callback<mixed>> = (args.slice(0, args.length - 1): any);
   const cont = args[args.length - 1];
+  // TODO: Fix flow error
+  // $ExpectError
   const out = _apply(cont, rest);
   return out;
 };

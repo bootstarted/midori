@@ -21,7 +21,7 @@ type Listen = {
  * @param {App} app App instance.
  * @returns {Server} HTTP server instance.
  */
-const listen: Listen = (app: App, ...rest: Array<*>) => {
+const listen: Listen = (app: App, ...rest: Array<mixed>) => {
   const server = createServer();
   connect(
     app,

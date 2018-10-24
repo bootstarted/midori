@@ -47,9 +47,9 @@ export const sendStream = (
   });
 };
 
-type Send = ((status: number, headers: Headers, body: Body) => *) &
-  ((status: number, body: Body) => *) &
-  ((body: Body) => *);
+type Send = ((status: number, headers: Headers, body: Body) => App) &
+  ((status: number, body: Body) => App) &
+  ((body: Body) => App);
 
 /**
  * Send content to the client.
@@ -58,7 +58,7 @@ type Send = ((status: number, headers: Headers, body: Body) => *) &
  * @param {String|Buffer|Readable} body Data to send.
  * @returns {App} App instance.
  */
-const send: Send = (...rest: Array<*>): App => {
+const send: Send = (...rest: Array<mixed>): App => {
   let body: ?Body;
   let status: ?number = 200;
   let headers: ?Headers;
@@ -86,7 +86,11 @@ const send: Send = (...rest: Array<*>): App => {
     // TODO: FIXME: Why does flow hate this?
     // $ExpectError
     return sendBinary(status, headers, body);
-  } else if (body && typeof body.pipe === 'function') {
+  } else if (
+    typeof body === 'object' &&
+    body &&
+    typeof body.pipe === 'function'
+  ) {
     // TODO: FIXME: Why does flow hate this?
     // $ExpectError
     return sendStream(status, headers, body);
