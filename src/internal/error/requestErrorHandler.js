@@ -19,7 +19,7 @@ const getStatusCode = (err: ErrorWithStatusCode | Error): number => {
   return 500;
 };
 
-export const createRequestErrorHandler = (console: typeof console) => (
+export const createRequestErrorHandler = (consoleObject: typeof console) => (
   err: Error,
   req: IncomingMessage,
   res: ServerResponse,
@@ -35,9 +35,9 @@ export const createRequestErrorHandler = (console: typeof console) => (
   }
 
   if (res.headersSent || res.finished) {
-    console.error('Error occured after response already delivered.');
-    console.error('This probably indicates a problem elsewhere.');
-    console.error(err);
+    consoleObject.error('Error occured after response already delivered.');
+    consoleObject.error('This probably indicates a problem elsewhere.');
+    consoleObject.error(err);
     return;
   }
 
