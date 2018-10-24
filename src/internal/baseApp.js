@@ -15,7 +15,7 @@ const baseApp = {
       res.end();
     }
   },
-  upgrade(req: IncomingMessage, socket: Socket, _head: *) {
+  upgrade(req: IncomingMessage, socket: Socket, _head: Buffer) {
     // There isn't really a "catch-all" like `res.finished` for the `upgrade`
     // event. So if we're the only listener then we know we can close the
     // connection. Otherwise we just pray whomever else has attached to the

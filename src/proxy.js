@@ -7,8 +7,8 @@ import type {ClientRequest, IncomingMessage} from 'http';
 type Options = {
   target?: string | {host: string, port: number},
   forward?: string,
-  agent?: *,
-  ssl?: *,
+  agent?: mixed, // TODO: Figure out real type for this
+  ssl?: mixed, // TODO: Figure out real type for this
   ws?: boolean,
   xfwd?: boolean,
   secure?: boolean,

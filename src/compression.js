@@ -2,9 +2,10 @@
 import compression from 'compression';
 import middleware from './middleware';
 
+import type {IncomingMessage, ServerResponse} from 'http';
 import type {App} from './types';
 
-type Filter = (req: *, res: *) => boolean;
+type Filter = (req: IncomingMessage, res: ServerResponse) => boolean;
 
 type Options = {
   chunkSize?: number,

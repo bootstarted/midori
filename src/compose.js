@@ -1,4 +1,5 @@
 // @flow
+import type {App} from './types';
 
 /**
  * Composes apps together from left to right.
@@ -7,7 +8,7 @@
  * @returns {App} A new app representing the sequential combination of all the
  * given apps.
  */
-const compose = (...apps: Array<*>): * => {
+const compose = (...apps: Array<App>): App => {
   if (apps.length === 0) {
     return (arg) => arg;
   }

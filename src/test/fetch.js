@@ -2,7 +2,7 @@
 import createMockRequest from './createMockRequest';
 import createMockResponse from './createMockResponse';
 
-import type {App} from '../types';
+import type {App, InternalInstance} from '../types';
 import type {IncomingMessage, ServerResponse} from 'http';
 import type {Readable} from 'stream';
 import type {Socket} from 'net';
@@ -30,13 +30,13 @@ type MockedResponse = ServerResponse & {
 };
 
 const fetch = async (
-  App: App,
+  app: App,
   url?: string,
   _options?: Options,
 ): Promise<MockedResponse> => {
   let globalError = null;
   const options = _options || {};
-  const stub: App = {
+  const stub: InternalInstance = {
     request: () => {
       options.onNext && options.onNext();
     },
@@ -56,10 +56,10 @@ const fetch = async (
     },
     listening: () => {},
   };
-  if (typeof App !== 'function') {
+  if (typeof app !== 'function') {
     throw new TypeError('Must pass valid app to `fetch`.');
   }
-  const app = App(stub);
+  const internalApp = app(stub);
 
   let req = createMockRequest({
     url,
@@ -84,11 +84,16 @@ const fetch = async (
     typeof req.headers.connection === 'string' &&
     req.headers.connection.toLowerCase() === 'upgrade'
   ) {
-    // flowlint-next-line unclear-type: off
-    result = await app.upgrade((req: any), (res.socket: any), new Buffer(''));
+    result = await internalApp.upgrade(
+      // flowlint-next-line unclear-type: off
+      (req: any),
+      // flowlint-next-line unclear-type: off
+      (res.socket: any),
+      new Buffer(''),
+    );
   } else {
     // flowlint-next-line unclear-type: off
-    result = await app.request((req: any), realRes);
+    result = await internalApp.request((req: any), realRes);
   }
 
   // flowlint-next-line unclear-type: off
