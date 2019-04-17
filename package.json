@@ -49,7 +49,7 @@
     "babel-loader": "8.0.4",
     "body-parser": "1.18.3",
     "cookies": "0.7.3",
-    "eslint": "5.9.0",
+    "eslint": "5.16.0",
     "eslint-config-metalab": "10.1.0",
     "flow-bin": "0.84.0",
     "jest": "24.7.1",
