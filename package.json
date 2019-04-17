@@ -50,7 +50,7 @@
     "body-parser": "1.18.3",
     "cookies": "0.7.3",
     "eslint": "5.9.0",
-    "eslint-config-metalab": "10.0.0",
+    "eslint-config-metalab": "10.1.0",
     "flow-bin": "0.84.0",
     "jest": "23.6.0",
     "ncp": "2.0.0",
