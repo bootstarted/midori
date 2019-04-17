@@ -8,7 +8,7 @@
     "build": "NODE_ENV=${NODE_ENV:-production} npm run build:render && npm run build:client"
   },
   "dependencies": {
-    "doctrine": "2.1.0",
+    "doctrine": "3.0.0",
     "highlight.js": "9.13.1",
     "htmlescape": "1.1.1",
     "ramda": "0.26.0",
