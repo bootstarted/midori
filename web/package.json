@@ -18,7 +18,7 @@
     "react-lowlight": "2.0.0",
     "react-router": "4.3.1",
     "react-router-dom": "4.3.1",
-    "styled-components": "4.0.3"
+    "styled-components": "4.4.1"
   },
   "devDependencies": {
     "@babel/core": "7.4.3",
