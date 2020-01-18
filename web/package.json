@@ -27,7 +27,7 @@
     "babel-loader": "8.0.4",
     "babel-plugin-module-resolver": "3.1.1",
     "babel-plugin-styled-components": "1.8.0",
-    "case-sensitive-paths-webpack-plugin": "2.1.2",
+    "case-sensitive-paths-webpack-plugin": "2.3.0",
     "clean-webpack-plugin": "0.1.19",
     "find-nearest-file": "1.1.0",
     "pages-webpack-plugin": "0.2.0",
