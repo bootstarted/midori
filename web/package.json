@@ -33,7 +33,7 @@
     "pages-webpack-plugin": "0.2.0",
     "stats-webpack-plugin": "0.7.0",
     "webpack": "4.24.0",
-    "webpack-cli": "3.1.2",
+    "webpack-cli": "3.3.11",
     "webpack-node-externals": "1.7.2",
     "webpack-partial": "2.2.0"
   }
