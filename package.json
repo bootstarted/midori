@@ -51,7 +51,7 @@
     "cookies": "0.7.3",
     "eslint": "5.9.0",
     "eslint-config-metalab": "10.1.0",
-    "flow-bin": "0.84.0",
+    "flow-bin": "0.123.0",
     "jest": "24.7.1",
     "ncp": "2.0.0",
     "negotiator": "0.6.1",
